@@ -1,0 +1,24 @@
+"use client"
+
+import { HeroSection } from "@/components/home/hero"
+import { FeaturesSection } from "@/components/home/features"
+import { HowItWorksSection } from "@/components/home/how-it-works-section"
+import { TestimonialsSection } from "@/components/home/testimonials-section"
+import { ScrollProgress, AnimatedBackground } from "@/components/ui/motion-effects"
+import { StatsSection } from "@/components/home/stats-section"
+import { CTASection } from "@/components/home/cta-section"
+
+export default function HomePage() {
+  return (
+    <>
+      <ScrollProgress />
+      <AnimatedBackground />
+      <HeroSection />
+      <StatsSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <TestimonialsSection />
+      <CTASection />
+    </>
+  )
+}
