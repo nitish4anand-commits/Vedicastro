@@ -1,11 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useLoadScript } from '@react-google-maps/api'
 import { MapPin, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-const libraries: ("places")[] = ["places"]
 
 export interface LocationData {
   placeName: string
@@ -17,6 +14,15 @@ export interface LocationData {
   country: string
 }
 
+interface Suggestion {
+  placeId: string
+  description: string
+  mainText: string
+  secondaryText: string
+  lat: number
+  lon: number
+}
+
 interface LocationAutocompleteProps {
   value: string
   onChange: (location: LocationData) => void
@@ -24,6 +30,24 @@ interface LocationAutocompleteProps {
   placeholder?: string
   error?: string
   className?: string
+}
+
+// Estimate timezone from longitude (each 15° = 1 hour)
+function estimateTimezoneFromLongitude(longitude: number): number {
+  return Math.round(longitude / 15)
+}
+
+// Get timezone ID from offset
+function getTimezoneId(offset: number): string {
+  // Common Indian timezone
+  if (offset >= 5 && offset <= 6) return 'Asia/Kolkata'
+  if (offset === 0) return 'UTC'
+  if (offset === -5) return 'America/New_York'
+  if (offset === -8) return 'America/Los_Angeles'
+  if (offset === 1) return 'Europe/London'
+  if (offset === 8) return 'Asia/Shanghai'
+  if (offset === 9) return 'Asia/Tokyo'
+  return `Etc/GMT${offset >= 0 ? '-' : '+'}${Math.abs(offset)}`
 }
 
 export default function LocationAutocomplete({
@@ -34,32 +58,11 @@ export default function LocationAutocomplete({
   error,
   className
 }: LocationAutocompleteProps) {
-  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([])
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null)
-  const placesService = useRef<google.maps.places.PlacesService | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: apiKey || '',
-    libraries,
-    preventGoogleFontsLoading: true
-  })
-
-  // Initialize services when Google Maps loads
-  useEffect(() => {
-    if (isLoaded && window.google) {
-      autocompleteService.current = new google.maps.places.AutocompleteService()
-
-      // Create a dummy div for PlacesService (required by API)
-      const dummyDiv = document.createElement('div')
-      placesService.current = new google.maps.places.PlacesService(dummyDiv)
-    }
-  }, [isLoaded])
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -73,163 +76,91 @@ export default function LocationAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleInputChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value
-    onInputChange(inputValue)
-
-    if (!inputValue.trim() || inputValue.length < 3) {
+  // Fetch suggestions from Nominatim (free, no API key needed)
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (!query || query.length < 2) {
       setSuggestions([])
       setShowSuggestions(false)
       return
     }
 
-    if (!autocompleteService.current) return
-
     setIsLoading(true)
 
     try {
-      autocompleteService.current.getPlacePredictions(
-        {
-          input: inputValue,
-          types: ['(cities)'] // Only cities
-        },
-        (predictions, status) => {
-          setIsLoading(false)
-
-          if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-            setSuggestions(predictions)
-            setShowSuggestions(true)
-          } else {
-            setSuggestions([])
-            setShowSuggestions(false)
-          }
-        }
+      // Use Nominatim OpenStreetMap API (free, no key required)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?` +
+        `q=${encodeURIComponent(query)}&` +
+        `format=json&` +
+        `limit=6&` +
+        `addressdetails=1`
       )
-    } catch (error) {
-      console.error('Autocomplete error:', error)
+
+      if (!response.ok) throw new Error('Failed to fetch')
+
+      const data = await response.json()
+
+      const formattedSuggestions: Suggestion[] = data.map((item: any) => {
+        const addressParts = item.display_name.split(',')
+        return {
+          placeId: item.place_id.toString(),
+          description: item.display_name,
+          mainText: item.name || addressParts[0]?.trim() || '',
+          secondaryText: addressParts.slice(1, 3).join(',').trim(),
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon)
+        }
+      })
+
+      setSuggestions(formattedSuggestions)
+      setShowSuggestions(formattedSuggestions.length > 0)
+    } catch (err) {
+      console.error('Location search error:', err)
+      setSuggestions([])
+    } finally {
       setIsLoading(false)
     }
-  }, [onInputChange])
+  }, [])
 
-  const getTimezone = async (lat: number, lng: number): Promise<string> => {
-    if (!apiKey) return 'Asia/Kolkata' // Default to IST
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value
+    onInputChange(inputValue)
 
-    try {
-      const timestamp = Math.floor(Date.now() / 1000)
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${timestamp}&key=${apiKey}`
-      )
-      const data = await response.json()
-      return data.timeZoneId || 'Asia/Kolkata'
-    } catch (error) {
-      console.error('Timezone error:', error)
-      return 'Asia/Kolkata'
+    // Debounce API calls
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
     }
+
+    debounceRef.current = setTimeout(() => {
+      fetchSuggestions(inputValue)
+    }, 300)
   }
 
-  const handleSelectPlace = async (placeId: string, description: string) => {
-    if (!placesService.current) return
+  const handleSelectPlace = async (suggestion: Suggestion) => {
+    setShowSuggestions(false)
 
-    setIsLoading(true)
+    // Calculate timezone from longitude
+    const timezoneOffset = estimateTimezoneFromLongitude(suggestion.lon)
+    const timezone = getTimezoneId(timezoneOffset)
 
-    placesService.current.getDetails(
-      {
-        placeId,
-        fields: ['geometry', 'address_components', 'formatted_address', 'name']
-      },
-      async (place, status) => {
-        setIsLoading(false)
+    // Parse the description for city, state, country
+    const parts = suggestion.description.split(',').map(p => p.trim())
+    const city = suggestion.mainText
+    const state = parts.length >= 3 ? parts[parts.length - 2] : ''
+    const country = parts.length >= 2 ? parts[parts.length - 1] : ''
 
-        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-          const lat = place.geometry?.location?.lat() || 0
-          const lng = place.geometry?.location?.lng() || 0
+    const locationData: LocationData = {
+      placeName: suggestion.description,
+      latitude: suggestion.lat,
+      longitude: suggestion.lon,
+      timezone,
+      city,
+      state,
+      country
+    }
 
-          // Get timezone using lat/lng
-          const timezone = await getTimezone(lat, lng)
-
-          // Extract city, state, country from address components
-          let city = ''
-          let state = ''
-          let country = ''
-
-          place.address_components?.forEach(component => {
-            if (component.types.includes('locality')) {
-              city = component.long_name
-            }
-            if (component.types.includes('administrative_area_level_1')) {
-              state = component.long_name
-            }
-            if (component.types.includes('country')) {
-              country = component.long_name
-            }
-          })
-
-          const locationData: LocationData = {
-            placeName: description,
-            latitude: lat,
-            longitude: lng,
-            timezone,
-            city: city || place.name || '',
-            state,
-            country
-          }
-
-          onChange(locationData)
-          onInputChange(description)
-          setShowSuggestions(false)
-          setSuggestions([])
-        }
-      }
-    )
-  }
-
-  // If no API key, show a basic input
-  if (!apiKey) {
-    return (
-      <div className={cn("w-full", className)}>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => onInputChange(e.target.value)}
-            placeholder={placeholder}
-            className={cn(
-              "w-full pl-10 pr-4 py-2 rounded-lg",
-              "bg-background border",
-              error ? "border-red-500" : "border-input",
-              "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
-              "outline-none transition-all text-sm"
-            )}
-          />
-        </div>
-        {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-        <p className="mt-1 text-xs text-amber-500">
-          ⚠️ Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable location autocomplete
-        </p>
-      </div>
-    )
-  }
-
-  if (loadError) {
-    return (
-      <div className={cn("w-full", className)}>
-        <div className="text-red-500 text-sm p-3 bg-red-500/10 rounded-lg">
-          Error loading Google Maps. Please check your API key.
-        </div>
-      </div>
-    )
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className={cn("w-full", className)}>
-        <div className="flex items-center gap-2 text-muted-foreground p-3 bg-muted/50 rounded-lg">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Loading location services...</span>
-        </div>
-      </div>
-    )
+    onChange(locationData)
+    onInputChange(suggestion.description)
   }
 
   return (
@@ -237,7 +168,6 @@ export default function LocationAutocomplete({
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
-          ref={inputRef}
           type="text"
           value={value}
           onChange={handleInputChange}
@@ -267,9 +197,9 @@ export default function LocationAutocomplete({
                        max-h-60 overflow-y-auto">
           {suggestions.map((suggestion) => (
             <button
-              key={suggestion.place_id}
+              key={suggestion.placeId}
               type="button"
-              onClick={() => handleSelectPlace(suggestion.place_id, suggestion.description)}
+              onClick={() => handleSelectPlace(suggestion)}
               className="w-full px-4 py-3 text-left hover:bg-accent
                        transition-colors border-b border-border last:border-b-0
                        flex items-start gap-3"
@@ -277,14 +207,19 @@ export default function LocationAutocomplete({
               <MapPin className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">
-                  {suggestion.structured_formatting?.main_text}
+                  {suggestion.mainText}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {suggestion.structured_formatting?.secondary_text}
+                  {suggestion.secondaryText}
                 </p>
               </div>
             </button>
           ))}
+          
+          {/* Attribution required by Nominatim */}
+          <div className="px-4 py-2 text-[10px] text-muted-foreground bg-muted/30 text-center">
+            Data © OpenStreetMap contributors
+          </div>
         </div>
       )}
     </div>
