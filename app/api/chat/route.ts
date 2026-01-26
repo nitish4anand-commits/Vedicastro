@@ -1,156 +1,140 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { 
+  analyzeEmotion, 
+  detectCrisis, 
+  getCrisisResponse, 
+  detectConversationTheme,
+  CRISIS_HELPLINES 
+} from '@/lib/ai/emotion-detection'
+import { buildSystemPrompt, generateQuickActions } from '@/lib/ai/system-prompt'
+import { enhanceWithAstrology, containsAstroInsight } from '@/lib/ai/astrology-enhancer'
 
-// Astrological context for better responses
-const ASTROLOGICAL_CONTEXT = `
-You are Jyoti, a compassionate and wise AI astrology companion. You combine deep knowledge of 
-Vedic astrology with therapeutic techniques and emotional support. Your personality traits:
-
-- Warm and empathetic, like a trusted friend
-- Knowledgeable about Vedic astrology, including nakshatras, dashas, yogas, and planetary transits
-- Skilled in offering meditation and breathing exercises for emotional regulation
-- Culturally aware and respectful of diverse backgrounds
-- Use gentle language and occasional emojis to feel approachable
-- Always validate feelings before offering solutions
-- If someone seems distressed, prioritize emotional support over astrological advice
-
-Key Vedic Astrology Concepts you can discuss:
-- 12 Rashis (zodiac signs) and their characteristics
-- 27 Nakshatras and their influence
-- Planetary periods (Mahadasha, Antardasha)
-- Common yogas (Gaja Kesari, Budhaditya, Dhana Yoga, etc.)
-- Doshas and their remedies (Manglik, Kaal Sarp, Pitra Dosha)
-- Transit effects (Shani Sade Sati, Jupiter transits)
-- Muhurta for auspicious timings
-
-Always be supportive, never predict death, severe illness, or make scary predictions.
-Focus on empowerment and growth opportunities in any chart analysis.
-`
-
-// Simple keyword detection for special message types
-function detectMessageType(message: string): string | null {
-  const lowerMessage = message.toLowerCase()
-  
-  // Crisis/distress detection
-  const crisisKeywords = ['suicide', 'kill myself', 'end my life', 'want to die', 'no reason to live', 'hopeless', 'worthless', 'self harm']
-  if (crisisKeywords.some(keyword => lowerMessage.includes(keyword))) {
-    return 'crisis-support'
-  }
-  
-  // Meditation/anxiety request detection
-  const meditationKeywords = ['anxious', 'anxiety', 'stressed', 'can\'t breathe', 'panic', 'meditation', 'breathing exercise', 'calm down', 'overwhelmed']
-  if (meditationKeywords.some(keyword => lowerMessage.includes(keyword))) {
-    return 'meditation'
-  }
-  
-  return null
+// Types
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  emotion?: string
 }
 
-// Generate quick actions based on response content
-function generateQuickActions(response: string, userMessage: string): Array<{id: string; label: string; action: string}> {
-  const actions: Array<{id: string; label: string; action: string}> = []
-  const lowerMessage = userMessage.toLowerCase()
-  
-  if (lowerMessage.includes('career') || lowerMessage.includes('job')) {
-    actions.push({ id: '1', label: '10th House Analysis', action: 'analyze_10th_house' })
-    actions.push({ id: '2', label: 'Career Transits', action: 'career_transits' })
+interface UserBirthChart {
+  ascendant?: string
+  moonSign?: string
+  sunSign?: string
+  nakshatra?: string
+  nakshatraPada?: number
+  currentDasha?: {
+    mahadasha: string
+    mahadashaEnd: string
+    antardasha: string
+    antardashaEnd: string
   }
-  
-  if (lowerMessage.includes('love') || lowerMessage.includes('relationship') || lowerMessage.includes('marriage')) {
-    actions.push({ id: '1', label: '7th House Analysis', action: 'analyze_7th_house' })
-    actions.push({ id: '2', label: 'Venus Transit', action: 'venus_transit' })
-  }
-  
-  if (lowerMessage.includes('health')) {
-    actions.push({ id: '1', label: '6th House Analysis', action: 'analyze_6th_house' })
-    actions.push({ id: '2', label: 'Health Remedies', action: 'health_remedies' })
-  }
-  
-  return actions.slice(0, 3)
+  yogas?: Array<{ name: string; description: string }>
+  doshas?: Array<{ name: string; present: boolean; severity?: string }>
 }
 
-// Check if response contains astrological content
-function hasAstroInsight(response: string): boolean {
-  const astroTerms = ['planet', 'house', 'transit', 'dasha', 'rashi', 'nakshatra', 'yoga', 'saturn', 'jupiter', 'venus', 'mars', 'mercury', 'moon', 'sun', 'rahu', 'ketu']
-  const lowerResponse = response.toLowerCase()
-  return astroTerms.some(term => lowerResponse.includes(term))
+// Get user's birth chart from localStorage/session (passed from frontend)
+function parseBirthChart(chartData: unknown): UserBirthChart | undefined {
+  if (!chartData || typeof chartData !== 'object') return undefined
+  return chartData as UserBirthChart
 }
 
-// Generate response using Anthropic Claude API (if available) or fallback
-async function generateResponse(message: string, history: Array<{role: string; content: string}>): Promise<string> {
-  const anthropicKey = process.env.ANTHROPIC_API_KEY
-  const openaiKey = process.env.OPENAI_API_KEY
-  
-  // Try Anthropic Claude first
-  if (anthropicKey) {
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
-          max_tokens: 1024,
-          system: ASTROLOGICAL_CONTEXT,
-          messages: [
-            ...history.map(msg => ({
-              role: msg.role === 'user' ? 'user' : 'assistant',
-              content: msg.content
-            })),
-            { role: 'user', content: message }
-          ]
-        })
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        return data.content[0].text
-      }
-    } catch (error) {
-      console.error('Anthropic API error:', error)
-    }
-  }
-  
-  // Try OpenAI GPT as fallback
-  if (openaiKey) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            { role: 'system', content: ASTROLOGICAL_CONTEXT },
-            ...history.map(msg => ({
-              role: msg.role === 'user' ? 'user' : 'assistant',
-              content: msg.content
-            })),
-            { role: 'user', content: message }
-          ],
-          max_tokens: 1024
-        })
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        return data.choices[0].message.content
-      }
-    } catch (error) {
-      console.error('OpenAI API error:', error)
-    }
-  }
-  
-  // Fallback: Generate contextual response without API
-  return generateFallbackResponse(message)
+// Detect if user wants meditation/breathing
+function wantsMeditation(message: string): boolean {
+  const keywords = [
+    'breathing exercise', 'meditation', 'calm down', 'calm me',
+    'help me relax', 'anxious', 'panic', 'overwhelmed', 'stressed',
+    'need to breathe', 'can\'t breathe', 'grounding'
+  ]
+  return keywords.some(k => message.toLowerCase().includes(k))
 }
 
-// Generate fallback response when no API is available
-function generateFallbackResponse(message: string): string {
+// Call Anthropic Claude API
+async function callClaudeAPI(
+  systemPrompt: string,
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  userMessage: string
+): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('Anthropic API key not configured')
+  }
+  
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [
+        ...messages.slice(-10).map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: 'user', content: userMessage }
+      ]
+    })
+  })
+  
+  if (!response.ok) {
+    const errorData = await response.text()
+    console.error('Claude API error:', errorData)
+    throw new Error('Failed to get response from Claude')
+  }
+  
+  const data = await response.json()
+  const textBlock = data.content?.find((block: { type: string }) => block.type === 'text')
+  return textBlock?.text || ''
+}
+
+// Call OpenAI GPT API as fallback
+async function callOpenAIAPI(
+  systemPrompt: string,
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  userMessage: string
+): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('OpenAI API key not configured')
+  }
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages.slice(-10).map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: 'user', content: userMessage }
+      ],
+      max_tokens: 2048,
+      temperature: 0.7
+    })
+  })
+  
+  if (!response.ok) {
+    throw new Error('Failed to get response from OpenAI')
+  }
+  
+  const data = await response.json()
+  return data.choices[0]?.message?.content || ''
+}
+
+// Intelligent fallback responses when no API is available
+function generateFallbackResponse(message: string, emotion: string, theme: string): string {
   const lowerMessage = message.toLowerCase()
   
   // Greeting responses
@@ -163,120 +147,87 @@ function generateFallbackResponse(message: string): string {
     return greetings[Math.floor(Math.random() * greetings.length)]
   }
   
-  // Career questions
-  if (lowerMessage.includes('career') || lowerMessage.includes('job') || lowerMessage.includes('work')) {
-    return `Career matters are deeply connected to your 10th house (house of profession) and its lord. 🏢
+  // Emotion-specific responses
+  if (emotion === 'anxiety' || emotion === 'stress') {
+    return `I can sense you're carrying some weight right now, and that's okay. Your feelings are completely valid. 💜
 
-**Key factors in career analysis:**
-- **10th House**: Your public image and career direction
-- **6th House**: Daily work and service
-- **2nd House**: Income and accumulated wealth
-- **Saturn**: Discipline, hard work, and long-term success
+Let me share a simple technique: Take a slow breath in through your nose for 4 counts, hold for 4, then release through your mouth for 6 counts. Do this 3 times.
 
-For a personalized analysis, I'd need your birth details. But generally, this period favors careful planning and patience. Trust that your efforts will bear fruit! 🌱
+When you're ready, I'm here to listen. What's been on your mind? Sometimes just putting it into words can help lighten the load.
 
-Would you like to:
-• Generate your Kundli for detailed career insights
-• Learn about current planetary transits
-• Explore career-boosting remedies`
+Would you like me to guide you through a full breathing exercise, or would you prefer to talk about what's causing this feeling?`
   }
   
-  // Relationship questions
-  if (lowerMessage.includes('love') || lowerMessage.includes('relationship') || lowerMessage.includes('marriage') || lowerMessage.includes('partner')) {
-    return `Matters of the heart are governed by Venus (planet of love) and the 7th house (partnerships). 💕
+  if (emotion === 'sadness') {
+    return `I hear you, and I want you to know that your feelings matter. It takes courage to express what's in your heart. 💙
 
-**Key relationship indicators:**
-- **7th House**: Marriage and committed partnerships
-- **Venus**: Love, beauty, and romantic attraction
-- **5th House**: Romance and courtship
-- **Moon**: Emotional compatibility
+Whatever you're going through, you don't have to face it alone. In Vedic wisdom, we believe that even the darkest nights give way to dawn.
 
-In Vedic astrology, we also analyze the **Navamsa chart** (D9) for deeper marriage insights.
-
-Remember, the stars show tendencies, but your free will shapes your destiny. What specific aspect would you like to explore? 🌹`
+Tell me more about what you're experiencing. I'm here to listen without judgment, and together we might find some light in this moment.`
   }
   
-  // Health questions
-  if (lowerMessage.includes('health')) {
-    return `Health in Vedic astrology is analyzed through multiple factors. 🏥
+  // Theme-specific responses
+  if (theme === 'career') {
+    return `Career and purpose are such important parts of our journey! 💼
 
-**Key health indicators:**
-- **Ascendant**: Overall vitality and constitution
-- **6th House**: Diseases and healing ability
-- **8th House**: Chronic conditions and longevity
-- **Moon**: Mental and emotional health
+In Vedic astrology, career paths are influenced by the 10th house (house of profession), Saturn (discipline and hard work), and your current planetary period (Dasha).
 
-**General wellness tips from Jyotish:**
-• Follow routines aligned with your Moon sign
-• Practice pranayama (breathing exercises)
-• Wear gemstones only after proper analysis
+**Some questions to reflect on:**
+- What activities make you lose track of time?
+- When do you feel most energized at work?
+- What would your ideal workday look like?
 
-Would you like a breathing exercise to boost your vitality right now? 🧘‍♀️`
+If you share your birth details, I can look at how the planets are currently influencing your professional life. What specific aspect of your career would you like to explore?`
   }
   
-  // Zodiac sign questions
-  if (lowerMessage.includes('rashi') || lowerMessage.includes('zodiac') || lowerMessage.includes('sign') || 
-      lowerMessage.match(/\b(aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/i)) {
-    return `In Vedic astrology, your **Moon sign (Rashi)** is considered more important than your Sun sign! 🌙
+  if (theme === 'relationship') {
+    return `Matters of the heart are so central to our human experience. 💕
 
-The 12 Rashis represent different energies:
-• **Aries (Mesha)**: Initiative, courage
-• **Taurus (Vrishabha)**: Stability, sensuality  
-• **Gemini (Mithuna)**: Communication, curiosity
-• **Cancer (Karka)**: Nurturing, emotions
-• **Leo (Simha)**: Leadership, creativity
-• **Virgo (Kanya)**: Analysis, service
-• **Libra (Tula)**: Balance, relationships
-• **Scorpio (Vrishchika)**: Transformation, intensity
-• **Sagittarius (Dhanu)**: Wisdom, adventure
-• **Capricorn (Makara)**: Ambition, discipline
-• **Aquarius (Kumbha)**: Innovation, humanitarian
-• **Pisces (Meena)**: Spirituality, compassion
+In Vedic astrology, relationships are governed by the 7th house (partnerships), Venus (love and attraction), and the Moon (emotional connection).
 
-Would you like to generate your Kundli to discover your Moon sign? 🌟`
+**Key insights from the stars:**
+- The 7th house reveals what we seek in a partner
+- Venus placement shows our love language
+- Current transits can highlight relationship themes
+
+What's on your heart regarding relationships? Whether it's a specific situation or a general question about your romantic path, I'm here to explore this with you.`
   }
   
-  // General/default response
-  const generalResponses = [
-    `That's a wonderful question! ✨ In Vedic astrology, every aspect of life is connected to the cosmic dance of planets.
+  if (theme === 'spiritual') {
+    return `What a beautiful question to be exploring! Spiritual growth is at the heart of Vedic wisdom. 🕉️
 
-To give you personalized insights, I can:
-• Analyze your birth chart (Kundli)
-• Explain current planetary transits
-• Suggest astrological remedies
-• Guide you through a calming meditation
+The 9th house in your chart governs dharma (life purpose), higher learning, and spiritual evolution. Jupiter, the great benefic, guides our expansion and wisdom.
 
-What resonates with you right now? 🌙`,
+**Three pillars of spiritual growth in Vedic tradition:**
+1. Self-awareness (knowing your tendencies and patterns)
+2. Daily practice (even small, consistent efforts)
+3. Service to others (karma yoga)
 
-    `I hear you, and I'm here to help. 🙏
-
-The ancient wisdom of Jyotish (Vedic astrology) offers guidance for all life's journeys. Whether you're seeking clarity about relationships, career, health, or spiritual growth - the planets have messages for you.
-
-Would you like to:
-• Share your birth details for personalized insights
-• Learn about today's cosmic energies
-• Explore a specific area of your life
-
-What calls to you? ✨`,
-
-    `Thank you for sharing that with me. 🌟
-
-Every question you have is valid, and the cosmos has wisdom to offer. Vedic astrology sees life as a beautiful interplay of karma, dharma, and divine timing.
-
-I'm here to be your guide. Would you like me to:
-• Help you understand planetary influences
-• Suggest remedies for challenges
-• Offer a moment of peace through meditation
-
-What would serve you best right now? 🕉️`
-  ]
+What aspect of spirituality calls to you right now? Meditation, understanding your purpose, or perhaps navigating a specific spiritual question?`
+  }
   
-  return generalResponses[Math.floor(Math.random() * generalResponses.length)]
+  // Default response
+  return `Thank you for reaching out. I'm Jyoti, here to blend ancient Vedic wisdom with compassionate support. ✨
+
+I'm happy to explore:
+- **Your birth chart** for personalized insights
+- **Current planetary transits** affecting you
+- **Life guidance** on relationships, career, health
+- **Emotional support** and grounding techniques
+- **Meditation** and mindfulness practices
+
+What would feel most helpful for you right now? I'm all ears. 🙏`
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history = [] } = await req.json()
+    const body = await req.json()
+    const { 
+      message, 
+      history = [], 
+      userName = 'Friend',
+      birthChart: rawBirthChart
+    } = body
     
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -285,46 +236,113 @@ export async function POST(req: NextRequest) {
       )
     }
     
-    // Detect special message types
-    const messageType = detectMessageType(message)
+    // Parse birth chart if provided
+    const birthChart = parseBirthChart(rawBirthChart)
     
-    // For crisis messages, return immediate support without API call
-    if (messageType === 'crisis-support') {
+    // Analyze emotional state
+    const emotionalState = analyzeEmotion(message)
+    
+    // Detect crisis situation
+    const crisisCheck = detectCrisis(message, emotionalState)
+    
+    if (crisisCheck.isCrisis) {
+      const crisisResponse = getCrisisResponse(crisisCheck.severity)
       return NextResponse.json({
-        reply: "I'm here for you, and I'm concerned about what you've shared. Your feelings are valid, and you don't have to face this alone. Please reach out to professional support - they're trained to help.",
+        reply: crisisResponse,
         messageType: 'crisis-support',
-        quickActions: []
+        quickActions: [],
+        emotion: emotionalState.emotion,
+        intensity: emotionalState.intensity,
+        helplines: CRISIS_HELPLINES
       })
     }
     
-    // For meditation requests
-    if (messageType === 'meditation') {
+    // Check for meditation request
+    if (wantsMeditation(message)) {
       return NextResponse.json({
-        reply: "I can sense you need some calm right now. Let me guide you through a breathing exercise. This will help regulate your nervous system and bring peace. 🧘‍♀️",
+        reply: "I can sense you need some calm right now. Let me guide you through a breathing exercise to help regulate your nervous system. 🧘‍♀️\n\nThis is a 4-4-6-2 breathing pattern that activates your parasympathetic response and helps calm anxiety.",
         messageType: 'meditation',
-        quickActions: []
+        quickActions: [
+          { id: '1', label: '🌬️ Start breathing', action: 'start_breathing' },
+          { id: '2', label: '💬 Keep talking', action: 'continue_chat' }
+        ],
+        emotion: emotionalState.emotion,
+        intensity: emotionalState.intensity
       })
     }
     
-    // Generate AI response
-    const reply = await generateResponse(message, history)
+    // Detect conversation theme
+    const theme = detectConversationTheme(message, history)
     
-    // Generate quick actions and check for astro insights
-    const quickActions = generateQuickActions(reply, message)
-    const hasAstro = hasAstroInsight(reply)
+    // Build system prompt with full context
+    const systemPrompt = buildSystemPrompt({
+      userName,
+      birthChart,
+      emotionalState,
+      conversationTheme: theme,
+      userHistory: history.slice(-5) as ChatMessage[]
+    })
+    
+    let reply: string
+    
+    // Try AI APIs
+    const hasClaudeKey = !!process.env.ANTHROPIC_API_KEY
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY
+    
+    if (hasClaudeKey) {
+      try {
+        reply = await callClaudeAPI(systemPrompt, history, message)
+      } catch (error) {
+        console.error('Claude API error:', error)
+        if (hasOpenAIKey) {
+          try {
+            reply = await callOpenAIAPI(systemPrompt, history, message)
+          } catch (openAIError) {
+            console.error('OpenAI API error:', openAIError)
+            reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+          }
+        } else {
+          reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+        }
+      }
+    } else if (hasOpenAIKey) {
+      try {
+        reply = await callOpenAIAPI(systemPrompt, history, message)
+      } catch (error) {
+        console.error('OpenAI API error:', error)
+        reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+      }
+    } else {
+      // No API keys configured - use intelligent fallback
+      reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+    }
+    
+    // Enhance with astrological insights if relevant
+    reply = enhanceWithAstrology(reply, message, birthChart)
+    
+    // Generate quick actions based on context
+    const quickActions = generateQuickActions(theme, emotionalState.emotion)
+    
+    // Check if response has astrological content
+    const hasAstro = containsAstroInsight(reply)
     
     return NextResponse.json({
       reply,
       quickActions,
       hasAstroInsight: hasAstro,
-      messageType: 'text'
+      messageType: 'text',
+      emotion: emotionalState.emotion,
+      intensity: emotionalState.intensity,
+      sentimentScore: emotionalState.score,
+      theme
     })
     
   } catch (error) {
     console.error('Chat API error:', error)
     return NextResponse.json(
       { 
-        reply: "I apologize, but I'm having trouble connecting to my cosmic knowledge right now. Please try again in a moment. 🙏",
+        reply: "I'm having a moment of cosmic interference. 🌌 Please try again in a moment, and I'll be right here for you.",
+        messageType: 'error',
         error: 'Internal server error' 
       },
       { status: 500 }

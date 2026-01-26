@@ -2,17 +2,17 @@
 
 import { useState, useRef, KeyboardEvent } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, Mic, Paperclip, Image as ImageIcon, Smile, MicOff, X } from "lucide-react"
+import { Send, Paperclip, Image as ImageIcon, Smile, X } from "lucide-react"
 import { useChatStore } from "./chat-store"
 import { ChatMessage } from "./chat-types"
+import { VoiceInput } from "./voice-input"
 
 export default function ChatInput() {
   const [inputValue, setInputValue] = useState("")
-  const [isVoiceRecording, setIsVoiceRecording] = useState(false)
   const [showAttachMenu, setShowAttachMenu] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   
-  const { messages, addMessage, setTyping, isRecording, setRecording } = useChatStore()
+  const { messages, addMessage, setTyping, isTyping } = useChatStore()
 
   const handleSend = async () => {
     if (!inputValue.trim()) return
@@ -87,60 +87,14 @@ export default function ChatInput() {
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
   }
 
-  const toggleVoiceRecording = () => {
-    setIsVoiceRecording(!isVoiceRecording)
-    setRecording(!isRecording)
-    
-    if (!isVoiceRecording) {
-      // Start recording simulation
-      // In real implementation, use Web Speech API or a speech-to-text service
-      console.log('Starting voice recording...')
-    } else {
-      // Stop recording
-      console.log('Stopping voice recording...')
-      // Simulate transcription
-      setTimeout(() => {
-        setInputValue("What does my chart say about my career?")
-        setRecording(false)
-        setIsVoiceRecording(false)
-      }, 500)
-    }
+  const handleVoiceTranscription = (text: string) => {
+    setInputValue(text)
+    // Focus the input
+    inputRef.current?.focus()
   }
 
   return (
     <div className="border-t border-purple-500/20 bg-gray-900/80 backdrop-blur-sm p-4">
-      {/* Voice Recording Overlay */}
-      <AnimatePresence>
-        {isVoiceRecording && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute inset-0 bg-gray-900/95 backdrop-blur-sm
-                      flex flex-col items-center justify-center gap-4 z-50"
-          >
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-pink-500
-                            flex items-center justify-center animate-pulse">
-                <Mic className="w-10 h-10 text-white" />
-              </div>
-              {/* Recording waves */}
-              <div className="absolute inset-0 rounded-full border-4 border-red-500/50 animate-ping" />
-            </div>
-            <p className="text-white text-lg">Listening...</p>
-            <p className="text-gray-400 text-sm">Speak your question</p>
-            <button
-              onClick={toggleVoiceRecording}
-              className="mt-4 px-6 py-2 rounded-full bg-gray-800 text-white
-                       hover:bg-gray-700 transition-colors flex items-center gap-2"
-            >
-              <X className="w-4 h-4" />
-              Cancel
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Attachment Menu */}
       <AnimatePresence>
         {showAttachMenu && (
@@ -215,26 +169,20 @@ export default function ChatInput() {
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             onClick={handleSend}
+            disabled={isTyping}
             className="p-3 rounded-full bg-gradient-to-br from-purple-600 to-pink-600
                       text-white shadow-lg hover:shadow-purple-500/30
-                      transition-all duration-200 hover:scale-105"
+                      transition-all duration-200 hover:scale-105
+                      disabled:opacity-50 disabled:cursor-not-allowed"
             title="Send message"
           >
             <Send className="w-5 h-5" />
           </motion.button>
         ) : (
-          <motion.button
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            onClick={toggleVoiceRecording}
-            className={`p-3 rounded-full transition-all duration-200 hover:scale-105
-                       ${isVoiceRecording 
-                         ? 'bg-red-500 text-white' 
-                         : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
-            title={isVoiceRecording ? "Stop recording" : "Voice message"}
-          >
-            {isVoiceRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          </motion.button>
+          <VoiceInput 
+            onTranscription={handleVoiceTranscription}
+            disabled={isTyping}
+          />
         )}
       </div>
 

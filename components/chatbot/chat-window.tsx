@@ -1,13 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, X, Mic, MoreVertical } from "lucide-react"
+import { Sparkles, X, Heart, MoreVertical, Smile } from "lucide-react"
 import { useChatStore } from "./chat-store"
 import ChatMessages from "./chat-messages"
 import ChatInput from "./chat-input"
+import { MoodTracker, MoodIndicator } from "./mood-tracker"
+import { EmergencyCalm } from "./emergency-calm"
 
 export default function ChatWindow() {
   const { isOpen, closeChat, isTyping } = useChatStore()
+  const [showMoodTracker, setShowMoodTracker] = useState(false)
+  const [showEmergencyCalm, setShowEmergencyCalm] = useState(false)
 
   return (
     <AnimatePresence>
@@ -72,13 +77,27 @@ export default function ChatWindow() {
             
             {/* Right: Action buttons */}
             <div className="flex items-center gap-2">
-              {/* Voice call button */}
+              {/* Mood indicator */}
+              <MoodIndicator />
+              
+              {/* Track mood button */}
               <button 
+                onClick={() => setShowMoodTracker(true)}
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20
                           flex items-center justify-center transition-colors"
-                title="Voice chat"
+                title="Track mood"
               >
-                <Mic className="w-4 h-4 text-white" />
+                <Smile className="w-4 h-4 text-white" />
+              </button>
+              
+              {/* Emergency calm button */}
+              <button 
+                onClick={() => setShowEmergencyCalm(true)}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20
+                          flex items-center justify-center transition-colors"
+                title="Emergency calm"
+              >
+                <Heart className="w-4 h-4 text-white" />
               </button>
               
               {/* Menu button */}
@@ -105,6 +124,24 @@ export default function ChatWindow() {
 
           {/* Input Area */}
           <ChatInput />
+          
+          {/* Mood Tracker Modal */}
+          <MoodTracker 
+            isOpen={showMoodTracker} 
+            onClose={() => setShowMoodTracker(false)}
+            onMoodSelect={(mood, score) => {
+              console.log('Mood tracked:', mood, score)
+            }}
+          />
+          
+          {/* Emergency Calm Modal */}
+          <EmergencyCalm
+            isOpen={showEmergencyCalm}
+            onClose={() => setShowEmergencyCalm(false)}
+            onComplete={() => {
+              console.log('Breathing exercise completed')
+            }}
+          />
         </motion.div>
       )}
     </AnimatePresence>
