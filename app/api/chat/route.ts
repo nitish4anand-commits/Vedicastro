@@ -51,6 +51,7 @@ function wantsMeditation(message: string): boolean {
 }
 
 // Call Claude with Extended Thinking using official SDK
+// Uses 20,000 token thinking budget for deep reasoning as per spec
 async function callClaudeWithThinking(
   systemPrompt: string,
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -65,7 +66,7 @@ async function callClaudeWithThinking(
     max_tokens: 16000,
     thinking: {
       type: 'enabled',
-      budget_tokens: 10000
+      budget_tokens: 20000 // 20k budget for deep reasoning
     },
     system: systemPrompt,
     messages: [
@@ -97,6 +98,7 @@ async function callClaudeWithThinking(
 }
 
 // Call Claude without extended thinking (fallback)
+// Temperature 0.8 for more creative, varied responses
 async function callClaudeBasic(
   systemPrompt: string,
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -108,7 +110,8 @@ async function callClaudeBasic(
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
+    max_tokens: 8000,
+    temperature: 0.8, // Higher for creative, varied responses
     system: systemPrompt,
     messages: [
       ...messages.slice(-10).map(msg => ({
