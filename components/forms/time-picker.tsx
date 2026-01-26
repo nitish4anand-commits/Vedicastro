@@ -57,35 +57,32 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
   }
 
   const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.replace(/\D/g, '')
-    if (val === '') {
-      setHours('')
-      return
+    const val = e.target.value.replace(/\D/g, '').slice(0, 2)
+    setHours(val)
+    
+    // Only update parent if we have a valid complete value
+    if (val.length === 2) {
+      let num = parseInt(val)
+      if (num >= 1 && num <= 12) {
+        updateTime(val.padStart(2, '0'), minutes, period)
+      }
+    } else if (val.length === 1 && parseInt(val) >= 1) {
+      // Single digit 1-9 is valid
+      updateTime(val.padStart(2, '0'), minutes, period)
     }
-
-    let num = parseInt(val)
-    if (num < 1) num = 1
-    if (num > 12) num = 12
-
-    const newHours = num.toString().padStart(2, '0')
-    setHours(newHours)
-    updateTime(newHours, minutes, period)
   }
 
   const handleMinuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.replace(/\D/g, '')
-    if (val === '') {
-      setMinutes('')
-      return
+    const val = e.target.value.replace(/\D/g, '').slice(0, 2)
+    setMinutes(val)
+    
+    // Only update parent if we have a valid value
+    if (val.length > 0) {
+      let num = parseInt(val)
+      if (num >= 0 && num <= 59) {
+        updateTime(hours || '12', val.padStart(2, '0'), period)
+      }
     }
-
-    let num = parseInt(val)
-    if (num < 0) num = 0
-    if (num > 59) num = 59
-
-    const newMinutes = num.toString().padStart(2, '0')
-    setMinutes(newMinutes)
-    updateTime(hours, newMinutes, period)
   }
 
   const handlePeriodChange = (newPeriod: 'AM' | 'PM') => {
@@ -94,17 +91,21 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
   }
 
   const handleHourBlur = () => {
-    if (hours === '') {
-      setHours('12')
-      updateTime('12', minutes, period)
-    }
+    let num = parseInt(hours) || 12
+    if (num < 1) num = 1
+    if (num > 12) num = 12
+    const formatted = num.toString().padStart(2, '0')
+    setHours(formatted)
+    updateTime(formatted, minutes || '00', period)
   }
 
   const handleMinuteBlur = () => {
-    if (minutes === '') {
-      setMinutes('00')
-      updateTime(hours, '00', period)
-    }
+    let num = parseInt(minutes) || 0
+    if (num < 0) num = 0
+    if (num > 59) num = 59
+    const formatted = num.toString().padStart(2, '0')
+    setMinutes(formatted)
+    updateTime(hours || '12', formatted, period)
   }
 
   return (
@@ -123,13 +124,17 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
         {/* Hours */}
         <input
           type="text"
+          inputMode="numeric"
           value={hours}
           onChange={handleHourChange}
           onBlur={handleHourBlur}
+          onFocus={(e) => e.target.select()}
           placeholder="HH"
           maxLength={2}
           className="w-10 text-center bg-transparent outline-none
-                     text-foreground font-medium text-sm"
+                     text-foreground font-medium text-sm
+                     focus:bg-purple-500/10 rounded cursor-text"
+          aria-label="Hours"
         />
 
         <span className="text-muted-foreground font-bold">:</span>
@@ -137,13 +142,17 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
         {/* Minutes */}
         <input
           type="text"
+          inputMode="numeric"
           value={minutes}
           onChange={handleMinuteChange}
           onBlur={handleMinuteBlur}
+          onFocus={(e) => e.target.select()}
           placeholder="MM"
           maxLength={2}
           className="w-10 text-center bg-transparent outline-none
-                     text-foreground font-medium text-sm"
+                     text-foreground font-medium text-sm
+                     focus:bg-purple-500/10 rounded cursor-text"
+          aria-label="Minutes"
         />
 
         {/* AM/PM Toggle */}
