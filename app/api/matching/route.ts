@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server'
 import { calculateKundliMatching } from '@/lib/astrology/matching-calculations'
+import { 
+  generateKootaExplanation, 
+  generateOverallSummary, 
+  assessDataQuality,
+  type KootaExplanation,
+  type OverallSummary,
+  type DataQuality
+} from '@/lib/astrology/matching-explanations'
 
 export async function POST(request: Request) {
   try {
@@ -32,11 +40,42 @@ export async function POST(request: Request) {
     const matchResult = calculateKundliMatching(
       maleDate,
       femaleDate,
-      maleTimezone,
-      femaleTimezone
+      typeof maleTimezone === 'number' ? maleTimezone : 5.5,
+      typeof femaleTimezone === 'number' ? femaleTimezone : 5.5
     )
     
-    return NextResponse.json(matchResult)
+    // Generate explanations for each koota
+    const kootasWithExplanations = matchResult.kootas.map(koota => {
+      const explanation = generateKootaExplanation(
+        koota.koota,
+        koota.scored,
+        koota.maxPoints,
+        { combination: koota.combination }
+      )
+      return {
+        ...koota,
+        explanation
+      }
+    })
+    
+    // Generate overall summary
+    const overallSummary = generateOverallSummary(
+      matchResult.kootas.map(k => ({ name: k.koota, score: k.scored, maxScore: k.maxPoints })),
+      matchResult.totalScore
+    )
+    
+    // Assess data quality
+    const dataQuality = assessDataQuality(
+      { timeOfBirth: maleBirthTime, timezone: String(maleTimezone) },
+      { timeOfBirth: femaleBirthTime, timezone: String(femaleTimezone) }
+    )
+    
+    return NextResponse.json({
+      ...matchResult,
+      kootas: kootasWithExplanations,
+      overallSummary,
+      dataQuality
+    })
   } catch (error) {
     console.error('Matching calculation error:', error)
     return NextResponse.json(

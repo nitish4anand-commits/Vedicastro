@@ -189,6 +189,7 @@ function calculateVarna(maleNakshatra: number, femaleNakshatra: number): {
   maleVarna: string
   femaleVarna: string
   description: string
+  combination: string
 } {
   const maleVarna = NAKSHATRA_VARNA[maleNakshatra]
   const femaleVarna = NAKSHATRA_VARNA[femaleNakshatra]
@@ -199,6 +200,16 @@ function calculateVarna(maleNakshatra: number, femaleNakshatra: number): {
   // Male varna should be same or higher than female
   const points = maleIndex <= femaleIndex ? 1 : 0
   
+  // Determine combination key for explanations
+  let combination = `${maleVarna}-${femaleVarna}`
+  if (maleVarna === femaleVarna) {
+    combination = 'same'
+  } else if (points === 1) {
+    combination = 'compatible'
+  } else {
+    combination = 'incompatible'
+  }
+  
   return {
     points,
     maxPoints: 1,
@@ -206,7 +217,8 @@ function calculateVarna(maleNakshatra: number, femaleNakshatra: number): {
     femaleVarna,
     description: points === 1 
       ? 'Compatible Varna - Good spiritual harmony'
-      : 'Varna mismatch - Minor compatibility issue'
+      : 'Varna mismatch - Minor compatibility issue',
+    combination
   }
 }
 
@@ -217,23 +229,30 @@ function calculateVashya(maleRashi: number, femaleRashi: number): {
   maleGroup: string
   femaleGroup: string
   description: string
+  combination: string
 } {
   const maleGroup = getVashyaGroup(maleRashi)
   const femaleGroup = getVashyaGroup(femaleRashi)
   
   let points = 0
+  let combination = 'incompatible-vashya'
   
   if (maleGroup === femaleGroup) {
     points = 2
+    combination = 'same-sign'
   } else if (
     (maleGroup === 'Manav' && femaleGroup === 'Vanchar') ||
     (maleGroup === 'Vanchar' && femaleGroup === 'Manav') ||
     (maleGroup === 'Chatushpad' && femaleGroup === 'Vanchar')
   ) {
     points = 1
+    combination = 'one-way-vashya'
   } else if (femaleGroup === 'Keeta') {
     points = 0.5
+    combination = 'neutral'
   }
+  
+  if (points >= 1.5) combination = 'compatible-vashya'
   
   return {
     points,
@@ -244,7 +263,8 @@ function calculateVashya(maleRashi: number, femaleRashi: number): {
       ? 'Excellent mutual attraction and control'
       : points >= 1 
         ? 'Good compatibility with some adjustments'
-        : 'Challenging - requires understanding'
+        : 'Challenging - requires understanding',
+    combination
   }
 }
 
@@ -255,6 +275,7 @@ function calculateTara(maleNakshatra: number, femaleNakshatra: number): {
   maleTara: string
   femaleTara: string
   description: string
+  combination: string
 } {
   const TARA_NAMES = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Vadha', 'Mitra', 'Atimitra']
   
@@ -269,10 +290,20 @@ function calculateTara(maleNakshatra: number, femaleNakshatra: number): {
   const goodTaras = [1, 3, 5, 7, 8] // Sampat, Kshema, Sadhaka, Mitra, Atimitra
   
   let points = 0
+  let combination = 'unfavorable-tara'
+  
   if (goodTaras.includes(maleTaraIndex) && goodTaras.includes(femaleTaraIndex)) {
     points = 3
+    combination = 'favorable-tara'
   } else if (goodTaras.includes(maleTaraIndex) || goodTaras.includes(femaleTaraIndex)) {
     points = 1.5
+    combination = 'neutral-tara'
+  }
+  
+  // Add specific tara names for detailed explanation
+  const maleTaraName = TARA_NAMES[maleTaraIndex].toLowerCase()
+  if (['janma', 'sampat', 'vipat', 'kshema', 'pratyak', 'sadhana', 'naidhana'].includes(maleTaraName + '-tara')) {
+    combination = maleTaraName + '-tara'
   }
   
   return {
@@ -284,7 +315,8 @@ function calculateTara(maleNakshatra: number, femaleNakshatra: number): {
       ? 'Excellent destiny compatibility'
       : points >= 1.5 
         ? 'Moderate star compatibility'
-        : 'Challenging birth star relationship'
+        : 'Challenging birth star relationship',
+    combination
   }
 }
 
@@ -295,16 +327,20 @@ function calculateYoni(maleNakshatra: number, femaleNakshatra: number): {
   maleYoni: string
   femaleYoni: string
   description: string
+  combination: string
 } {
   const maleYoni = YONI_ANIMALS[maleNakshatra]
   const femaleYoni = YONI_ANIMALS[femaleNakshatra]
   
   let points = 0
+  let combination = 'neutral-yoni'
   
   if (maleYoni === femaleYoni) {
     points = 4
+    combination = 'same-yoni'
   } else if (YONI_ENEMIES[maleYoni] === femaleYoni) {
     points = 0
+    combination = 'enemy-yoni'
   } else {
     // Check if friendly or neutral
     const friendlyPairs = [
@@ -318,6 +354,7 @@ function calculateYoni(maleNakshatra: number, femaleNakshatra: number): {
     )
     
     points = isFriendly ? 3 : 2
+    combination = isFriendly ? 'friendly-yoni' : 'neutral-yoni'
   }
   
   return {
@@ -331,7 +368,8 @@ function calculateYoni(maleNakshatra: number, femaleNakshatra: number): {
         ? 'Good physical harmony'
         : points >= 2 
           ? 'Average physical compatibility'
-          : 'Challenging - may face physical incompatibility'
+          : 'Challenging - may face physical incompatibility',
+    combination
   }
 }
 
@@ -342,14 +380,17 @@ function calculateGrahaMaitri(maleNakshatra: number, femaleNakshatra: number): {
   maleLord: string
   femaleLord: string
   description: string
+  combination: string
 } {
   const maleLord = NAKSHATRA_LORD[maleNakshatra]
   const femaleLord = NAKSHATRA_LORD[femaleNakshatra]
   
   let points = 0
+  let combination = 'neutral-relationship'
   
   if (maleLord === femaleLord) {
     points = 5
+    combination = 'same-lord'
   } else {
     const maleFriends = PLANET_FRIENDS[maleLord] || []
     const femaleFriends = PLANET_FRIENDS[femaleLord] || []
@@ -361,11 +402,22 @@ function calculateGrahaMaitri(maleNakshatra: number, femaleNakshatra: number): {
     
     const total = maleToFemale + femaleToMale
     
-    if (total >= 2) points = 5
-    else if (total === 1) points = 4
-    else if (total === 0) points = 3
-    else if (total === -1) points = 1
-    else points = 0
+    if (total >= 2) {
+      points = 5
+      combination = 'natural-friends'
+    } else if (total === 1) {
+      points = 4
+      combination = 'temporary-friends'
+    } else if (total === 0) {
+      points = 3
+      combination = 'neutral-relationship'
+    } else if (total === -1) {
+      points = 1
+      combination = 'natural-enemies'
+    } else {
+      points = 0
+      combination = 'natural-enemies'
+    }
   }
   
   return {
@@ -377,7 +429,8 @@ function calculateGrahaMaitri(maleNakshatra: number, femaleNakshatra: number): {
       ? 'Excellent mental and intellectual compatibility'
       : points >= 3 
         ? 'Good mental harmony'
-        : 'Mental wavelength differences exist'
+        : 'Mental wavelength differences exist',
+    combination
   }
 }
 
@@ -388,28 +441,38 @@ function calculateGana(maleNakshatra: number, femaleNakshatra: number): {
   maleGana: string
   femaleGana: string
   description: string
+  combination: string
 } {
   const maleGana = NAKSHATRA_GANA[maleNakshatra]
   const femaleGana = NAKSHATRA_GANA[femaleNakshatra]
   
   let points = 0
+  let combination = 'incompatible-gana'
   
   if (maleGana === femaleGana) {
     points = 6
+    combination = `${maleGana}-${femaleGana}`
   } else if (
     (maleGana === 'Deva' && femaleGana === 'Manushya') ||
     (maleGana === 'Manushya' && femaleGana === 'Deva')
   ) {
     points = 5
+    combination = 'Dev-Manushya'
   } else if (
     (maleGana === 'Manushya' && femaleGana === 'Rakshasa') ||
     (maleGana === 'Rakshasa' && femaleGana === 'Manushya')
   ) {
     points = 1
+    combination = 'Manushya-Rakshasa'
   } else if (maleGana === 'Rakshasa' && femaleGana === 'Deva') {
     points = 0
+    combination = 'Dev-Rakshasa'
+  } else if (maleGana === 'Deva' && femaleGana === 'Rakshasa') {
+    points = 0
+    combination = 'Dev-Rakshasa'
   } else {
     points = 3
+    combination = 'compatible-gana'
   }
   
   return {
@@ -421,7 +484,8 @@ function calculateGana(maleNakshatra: number, femaleNakshatra: number): {
       ? 'Excellent temperament compatibility'
       : points >= 3 
         ? 'Workable temperament differences'
-        : 'Significant temperament mismatch - requires patience'
+        : 'Significant temperament mismatch - requires patience',
+    combination
   }
 }
 
@@ -430,6 +494,7 @@ function calculateBhakoot(maleRashi: number, femaleRashi: number): {
   points: number
   maxPoints: number
   description: string
+  combination: string
 } {
   const isBadCombination = BHAKOOT_BAD_COMBINATIONS.some(
     combo => combo[0] === maleRashi && combo[1] === femaleRashi
@@ -437,12 +502,34 @@ function calculateBhakoot(maleRashi: number, femaleRashi: number): {
   
   const points = isBadCombination ? 0 : 7
   
+  // Determine combination type
+  let combination = 'favorable-bhakoot'
+  if (isBadCombination) {
+    // Check for specific dosha types
+    const diff = Math.abs(maleRashi - femaleRashi)
+    if (diff === 5 || diff === 7) {
+      combination = '6-8-relationship'
+    } else if (diff === 1 || diff === 11) {
+      combination = '2-12-relationship'
+    } else {
+      combination = 'unfavorable-bhakoot'
+    }
+  } else if (maleRashi === femaleRashi) {
+    combination = 'same-sign'
+  } else {
+    const diff = Math.abs(maleRashi - femaleRashi)
+    if (diff === 4 || diff === 8) {
+      combination = '5-9-relationship'
+    }
+  }
+  
   return {
     points,
     maxPoints: 7,
     description: points === 7 
       ? 'Excellent love and emotional bonding'
-      : 'Bhakoot Dosha present - may face challenges in emotional bonding'
+      : 'Bhakoot Dosha present - may face challenges in emotional bonding',
+    combination
   }
 }
 
@@ -454,12 +541,20 @@ function calculateNadi(maleNakshatra: number, femaleNakshatra: number): {
   femaleNadi: string
   hasDosha: boolean
   description: string
+  combination: string
 } {
   const maleNadi = NAKSHATRA_NADI[maleNakshatra]
   const femaleNadi = NAKSHATRA_NADI[femaleNakshatra]
   
   const hasDosha = maleNadi === femaleNadi
   const points = hasDosha ? 0 : 8
+  
+  let combination = 'different-nadi'
+  if (hasDosha) {
+    combination = `${maleNadi}-${femaleNadi}`
+  } else {
+    combination = `${maleNadi}-${femaleNadi}`
+  }
   
   return {
     points,
@@ -469,7 +564,8 @@ function calculateNadi(maleNakshatra: number, femaleNakshatra: number): {
     hasDosha,
     description: points === 8 
       ? 'Excellent health and progeny compatibility'
-      : 'Nadi Dosha present - May affect health and children'
+      : 'Nadi Dosha present - May affect health and children',
+    combination
   }
 }
 
@@ -546,14 +642,14 @@ export function calculateKundliMatching(
       rashiIndex: femaleRashi
     },
     kootas: [
-      { koota: 'Varna', maxPoints: 1, scored: varna.points, status: varna.points >= 0.5 ? 'pass' : 'fail', description: varna.description },
-      { koota: 'Vashya', maxPoints: 2, scored: vashya.points, status: vashya.points >= 1 ? 'pass' : vashya.points >= 0.5 ? 'warning' : 'fail', description: vashya.description },
-      { koota: 'Tara', maxPoints: 3, scored: tara.points, status: tara.points >= 1.5 ? 'pass' : 'warning', description: tara.description },
-      { koota: 'Yoni', maxPoints: 4, scored: yoni.points, status: yoni.points >= 2 ? 'pass' : yoni.points >= 1 ? 'warning' : 'fail', description: yoni.description },
-      { koota: 'Graha Maitri', maxPoints: 5, scored: grahaMaitri.points, status: grahaMaitri.points >= 3 ? 'pass' : 'warning', description: grahaMaitri.description },
-      { koota: 'Gana', maxPoints: 6, scored: gana.points, status: gana.points >= 3 ? 'pass' : gana.points >= 1 ? 'warning' : 'fail', description: gana.description },
-      { koota: 'Bhakoot', maxPoints: 7, scored: bhakoot.points, status: bhakoot.points === 7 ? 'pass' : 'fail', description: bhakoot.description },
-      { koota: 'Nadi', maxPoints: 8, scored: nadi.points, status: nadi.points === 8 ? 'pass' : 'fail', description: nadi.description }
+      { koota: 'Varna', maxPoints: 1, scored: varna.points, status: varna.points >= 0.5 ? 'pass' : 'fail', description: varna.description, combination: varna.combination },
+      { koota: 'Vashya', maxPoints: 2, scored: vashya.points, status: vashya.points >= 1 ? 'pass' : vashya.points >= 0.5 ? 'warning' : 'fail', description: vashya.description, combination: vashya.combination },
+      { koota: 'Tara', maxPoints: 3, scored: tara.points, status: tara.points >= 1.5 ? 'pass' : 'warning', description: tara.description, combination: tara.combination },
+      { koota: 'Yoni', maxPoints: 4, scored: yoni.points, status: yoni.points >= 2 ? 'pass' : yoni.points >= 1 ? 'warning' : 'fail', description: yoni.description, combination: yoni.combination },
+      { koota: 'Graha Maitri', maxPoints: 5, scored: grahaMaitri.points, status: grahaMaitri.points >= 3 ? 'pass' : 'warning', description: grahaMaitri.description, combination: grahaMaitri.combination },
+      { koota: 'Gana', maxPoints: 6, scored: gana.points, status: gana.points >= 3 ? 'pass' : gana.points >= 1 ? 'warning' : 'fail', description: gana.description, combination: gana.combination },
+      { koota: 'Bhakoot', maxPoints: 7, scored: bhakoot.points, status: bhakoot.points === 7 ? 'pass' : 'fail', description: bhakoot.description, combination: bhakoot.combination },
+      { koota: 'Nadi', maxPoints: 8, scored: nadi.points, status: nadi.points === 8 ? 'pass' : 'fail', description: nadi.description, combination: nadi.combination }
     ],
     totalScore: totalPoints,
     maxScore: maxPoints,

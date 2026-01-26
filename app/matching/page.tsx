@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Heart, User, Star, Check, X, AlertTriangle, Loader2, Sparkles } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Heart, User, Star, Check, X, AlertTriangle, Loader2, Sparkles, ChevronDown, ChevronUp, Info, Lightbulb } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,12 +10,36 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { TimePicker, LocationAutocomplete, type LocationData } from "@/components/forms"
 
+interface KootaExplanation {
+  meaning: string
+  impact: string
+  scoreReason: string
+  improvementTips?: string[]
+}
+
 interface MatchResult {
   koota: string
   maxPoints: number
   scored: number
   status: "pass" | "warning" | "fail"
   description: string
+  combination?: string
+  explanation?: KootaExplanation
+}
+
+interface OverallSummary {
+  headline: string
+  compatibilityPercent: number
+  verdictType: 'excellent' | 'very-good' | 'good' | 'average' | 'needs-attention'
+  strengths: Array<{ koota: string; why: string }>
+  watchOuts: Array<{ koota: string; why: string; howToAddress: string }>
+  compatibilityNote: string
+}
+
+interface DataQuality {
+  isApproximate: boolean
+  confidenceLevel: 'high' | 'medium' | 'low'
+  limitations: string[]
 }
 
 interface MatchingResult {
@@ -35,6 +59,8 @@ interface MatchingResult {
   verdictType: 'excellent' | 'good' | 'average' | 'poor'
   doshas: string[]
   recommendations: string[]
+  overallSummary?: OverallSummary
+  dataQuality?: DataQuality
 }
 
 export default function MatchingPage() {
@@ -42,6 +68,7 @@ export default function MatchingPage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<MatchingResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [expandedKoota, setExpandedKoota] = useState<string | null>(null)
   
   const [maleDetails, setMaleDetails] = useState({
     name: '',
@@ -341,6 +368,71 @@ export default function MatchingPage() {
               </CardContent>
             </Card>
 
+            {/* Data Quality Warning */}
+            {result.dataQuality && result.dataQuality.limitations.length > 0 && (
+              <Card className="glass-card border-yellow-500/30 mb-8">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-yellow-600 dark:text-yellow-400 mb-2">
+                        Data Quality: {result.dataQuality.confidenceLevel === 'high' ? 'High Confidence' : result.dataQuality.confidenceLevel === 'medium' ? 'Moderate Confidence' : 'Lower Confidence'}
+                      </p>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        {result.dataQuality.limitations.map((limitation, idx) => (
+                          <li key={idx}>- {limitation}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Overall Summary */}
+            {result.overallSummary && (
+              <Card className="glass-card mb-8">
+                <CardContent className="pt-6">
+                  <p className="text-lg font-medium mb-4">{result.overallSummary.headline}</p>
+                  <p className="text-muted-foreground mb-6">{result.overallSummary.compatibilityNote}</p>
+                  
+                  {result.overallSummary.strengths.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="font-medium text-green-600 dark:text-green-400 flex items-center gap-2 mb-2">
+                        <Check className="h-4 w-4" /> Key Strengths
+                      </h4>
+                      <ul className="space-y-2">
+                        {result.overallSummary.strengths.map((strength, idx) => (
+                          <li key={idx} className="text-sm p-2 bg-green-500/10 rounded-lg">
+                            <span className="font-medium">{strength.koota}:</span> {strength.why}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {result.overallSummary.watchOuts.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-amber-600 dark:text-amber-400 flex items-center gap-2 mb-2">
+                        <AlertTriangle className="h-4 w-4" /> Areas for Attention
+                      </h4>
+                      <ul className="space-y-2">
+                        {result.overallSummary.watchOuts.map((watchOut, idx) => (
+                          <li key={idx} className="text-sm p-2 bg-amber-500/10 rounded-lg">
+                            <span className="font-medium">{watchOut.koota}:</span> {watchOut.why}
+                            <p className="text-xs text-muted-foreground mt-1">
+                              <Lightbulb className="h-3 w-3 inline mr-1" />
+                              {watchOut.howToAddress}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Kootas Details */}
             <Card className="glass-card mb-8">
               <CardHeader>
@@ -349,7 +441,7 @@ export default function MatchingPage() {
                   Ashtakoot Analysis (8 Kootas)
                 </CardTitle>
                 <CardDescription>
-                  Detailed breakdown of all 8 matching parameters
+                  Click on each koota to learn more about its meaning and impact on your relationship
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -360,18 +452,75 @@ export default function MatchingPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg"
+                      className="bg-muted/30 rounded-lg overflow-hidden"
                     >
-                      {getStatusIcon(koota.status)}
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">{koota.koota}</h4>
-                          <Badge variant={koota.status === 'pass' ? 'default' : koota.status === 'warning' ? 'secondary' : 'destructive'}>
-                            {koota.scored} / {koota.maxPoints}
-                          </Badge>
+                      <button
+                        onClick={() => setExpandedKoota(expandedKoota === koota.koota ? null : koota.koota)}
+                        className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left"
+                      >
+                        {getStatusIcon(koota.status)}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">{koota.koota}</h4>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={koota.status === 'pass' ? 'default' : koota.status === 'warning' ? 'secondary' : 'destructive'}>
+                                {koota.scored} / {koota.maxPoints}
+                              </Badge>
+                              {expandedKoota === koota.koota ? (
+                                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">{koota.description}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">{koota.description}</p>
-                      </div>
+                      </button>
+                      
+                      <AnimatePresence>
+                        {expandedKoota === koota.koota && koota.explanation && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="border-t border-border/50"
+                          >
+                            <div className="p-4 space-y-4 bg-background/50">
+                              <div>
+                                <h5 className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">What is {koota.koota}?</h5>
+                                <p className="text-sm text-muted-foreground">{koota.explanation.meaning}</p>
+                              </div>
+                              
+                              <div>
+                                <h5 className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Your Score Explained</h5>
+                                <p className="text-sm text-muted-foreground">{koota.explanation.scoreReason}</p>
+                              </div>
+                              
+                              <div>
+                                <h5 className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">Impact on Your Relationship</h5>
+                                <p className="text-sm text-muted-foreground">{koota.explanation.impact}</p>
+                              </div>
+                              
+                              {koota.explanation.improvementTips && koota.explanation.improvementTips.length > 0 && (
+                                <div>
+                                  <h5 className="text-sm font-medium text-amber-600 dark:text-amber-400 mb-1 flex items-center gap-1">
+                                    <Lightbulb className="h-4 w-4" /> Guidance
+                                  </h5>
+                                  <ul className="text-sm text-muted-foreground space-y-1">
+                                    {koota.explanation.improvementTips.map((tip, tipIdx) => (
+                                      <li key={tipIdx} className="flex items-start gap-2">
+                                        <span className="text-purple-500 mt-1">-</span>
+                                        <span>{tip}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   ))}
                 </div>
