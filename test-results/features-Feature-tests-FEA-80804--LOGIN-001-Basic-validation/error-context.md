@@ -1,0 +1,160 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VedicAstro" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: VedicAstro
+        - navigation [ref=e10]:
+          - link "Home" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - button "Kundli" [ref=e13] [cursor=pointer]:
+            - text: Kundli
+            - img [ref=e14]
+          - button "Horoscope" [ref=e17] [cursor=pointer]:
+            - text: Horoscope
+            - img [ref=e18]
+          - link "Panchang" [ref=e20] [cursor=pointer]:
+            - /url: /panchang
+          - link "Transits" [ref=e21] [cursor=pointer]:
+            - /url: /transits
+          - link "Numerology" [ref=e22] [cursor=pointer]:
+            - /url: /numerology
+          - link "Premium" [ref=e23] [cursor=pointer]:
+            - /url: /premium
+        - generic [ref=e24]:
+          - button "Toggle theme" [ref=e25] [cursor=pointer]:
+            - img
+            - generic [ref=e26]: Toggle theme
+          - link "Get Started" [ref=e27] [cursor=pointer]:
+            - /url: /auth/login
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - link "VedicAstro" [ref=e32] [cursor=pointer]:
+            - /url: /
+            - img [ref=e33]
+            - generic [ref=e36]: VedicAstro
+          - heading "Welcome Back" [level=1] [ref=e37]
+          - paragraph [ref=e38]: Sign in to access your cosmic insights
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - img [ref=e42]
+            - text: No user found with this email
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - text: Email
+              - generic [ref=e46]:
+                - img [ref=e47]
+                - textbox "your@email.com" [ref=e50]: user@example.com
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e53]: Password
+                - link "Forgot password?" [ref=e54] [cursor=pointer]:
+                  - /url: /auth/forgot-password
+              - generic [ref=e55]:
+                - img [ref=e56]
+                - textbox "••••••••" [ref=e59]: short
+                - button [ref=e60] [cursor=pointer]:
+                  - img [ref=e61]
+            - button "Sign In" [ref=e64] [cursor=pointer]:
+              - generic [ref=e65]:
+                - text: Sign In
+                - img
+          - generic [ref=e70]: Or continue with
+          - generic [ref=e71]:
+            - button "Google" [ref=e72] [cursor=pointer]:
+              - img
+              - text: Google
+            - button "GitHub" [ref=e73] [cursor=pointer]:
+              - img
+              - text: GitHub
+        - paragraph [ref=e74]:
+          - text: Don't have an account?
+          - link "Sign up for free" [ref=e75] [cursor=pointer]:
+            - /url: /auth/signup
+    - contentinfo [ref=e76]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]:
+            - link "VedicAstro" [ref=e80] [cursor=pointer]:
+              - /url: /
+              - img [ref=e81]
+              - generic [ref=e84]: VedicAstro
+            - paragraph [ref=e85]: Discover your cosmic blueprint with ancient Vedic wisdom and modern technology.
+            - generic [ref=e86]:
+              - link [ref=e87] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e88]
+              - link [ref=e90] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e91]
+              - link [ref=e93] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e94]
+              - link [ref=e97] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e98]
+          - generic [ref=e101]:
+            - heading "Services" [level=3] [ref=e102]
+            - list [ref=e103]:
+              - listitem [ref=e104]:
+                - link "Free Kundli" [ref=e105] [cursor=pointer]:
+                  - /url: /kundli
+              - listitem [ref=e106]:
+                - link "Kundli Matching" [ref=e107] [cursor=pointer]:
+                  - /url: /matching
+              - listitem [ref=e108]:
+                - link "Daily Horoscope" [ref=e109] [cursor=pointer]:
+                  - /url: /horoscope
+              - listitem [ref=e110]:
+                - link "Panchang" [ref=e111] [cursor=pointer]:
+                  - /url: /panchang
+              - listitem [ref=e112]:
+                - link "Dasha Calculator" [ref=e113] [cursor=pointer]:
+                  - /url: /dasha
+              - listitem [ref=e114]:
+                - link "Transit" [ref=e115] [cursor=pointer]:
+                  - /url: /transit
+          - generic [ref=e116]:
+            - heading "Company" [level=3] [ref=e117]
+            - list [ref=e118]:
+              - listitem [ref=e119]:
+                - link "About Us" [ref=e120] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e121]:
+                - link "Blog" [ref=e122] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=e123]:
+                - link "Pricing" [ref=e124] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e125]:
+                - link "Contact" [ref=e126] [cursor=pointer]:
+                  - /url: /contact
+              - listitem [ref=e127]:
+                - link "Careers" [ref=e128] [cursor=pointer]:
+                  - /url: /careers
+          - generic [ref=e129]:
+            - heading "Legal" [level=3] [ref=e130]
+            - list [ref=e131]:
+              - listitem [ref=e132]:
+                - link "Privacy Policy" [ref=e133] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e134]:
+                - link "Terms of Service" [ref=e135] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e136]:
+                - link "Disclaimer" [ref=e137] [cursor=pointer]:
+                  - /url: /disclaimer
+              - listitem [ref=e138]:
+                - link "Refund Policy" [ref=e139] [cursor=pointer]:
+                  - /url: /refund
+        - paragraph [ref=e141]: © 2026 VedicAstro. All rights reserved. Built with ❤️ using Vedic wisdom.
+  - button "Open Next.js Dev Tools" [ref=e147] [cursor=pointer]:
+    - img [ref=e148]
+  - alert [ref=e151]
+```

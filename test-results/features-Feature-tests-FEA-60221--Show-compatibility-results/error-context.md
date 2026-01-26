@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VedicAstro" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: VedicAstro
+        - navigation [ref=e10]:
+          - link "Home" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - button "Kundli" [ref=e13] [cursor=pointer]:
+            - text: Kundli
+            - img [ref=e14]
+          - button "Horoscope" [ref=e17] [cursor=pointer]:
+            - text: Horoscope
+            - img [ref=e18]
+          - link "Panchang" [ref=e20] [cursor=pointer]:
+            - /url: /panchang
+          - link "Transits" [ref=e21] [cursor=pointer]:
+            - /url: /transits
+          - link "Numerology" [ref=e22] [cursor=pointer]:
+            - /url: /numerology
+          - link "Premium" [ref=e23] [cursor=pointer]:
+            - /url: /premium
+        - generic [ref=e24]:
+          - button "Toggle theme" [ref=e25] [cursor=pointer]:
+            - img
+            - generic [ref=e26]: Toggle theme
+          - link "Get Started" [ref=e27] [cursor=pointer]:
+            - /url: /auth/login
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - img [ref=e32]
+          - heading "Kundli Matching" [level=1] [ref=e34]
+          - paragraph [ref=e35]: Check marriage compatibility using the Ashtakoot Gun Milan system with 36 points analysis
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e39]:
+              - img [ref=e40]
+              - heading "Male (Groom) Details" [level=3] [ref=e43]
+            - generic [ref=e44]:
+              - textbox "Full Name" [ref=e45]
+              - generic [ref=e46]:
+                - text: Date of Birth *
+                - textbox [ref=e47]
+              - generic [ref=e48]:
+                - text: Time of Birth
+                - textbox [ref=e49]: 12:00
+              - textbox "Place of Birth" [ref=e50]
+          - generic [ref=e51]:
+            - generic [ref=e53]:
+              - img [ref=e54]
+              - heading "Female (Bride) Details" [level=3] [ref=e57]
+            - generic [ref=e58]:
+              - textbox "Full Name" [ref=e59]
+              - generic [ref=e60]:
+                - text: Date of Birth *
+                - textbox [ref=e61]
+              - generic [ref=e62]:
+                - text: Time of Birth
+                - textbox [ref=e63]: 12:00
+              - textbox "Place of Birth" [ref=e64]
+        - paragraph [ref=e65]: Please enter birth dates for both partners
+        - button "Check Compatibility" [active] [ref=e67] [cursor=pointer]:
+          - img
+          - text: Check Compatibility
+    - contentinfo [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - link "VedicAstro" [ref=e72] [cursor=pointer]:
+              - /url: /
+              - img [ref=e73]
+              - generic [ref=e76]: VedicAstro
+            - paragraph [ref=e77]: Discover your cosmic blueprint with ancient Vedic wisdom and modern technology.
+            - generic [ref=e78]:
+              - link [ref=e79] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e80]
+              - link [ref=e82] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e83]
+              - link [ref=e85] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e86]
+              - link [ref=e89] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e90]
+          - generic [ref=e93]:
+            - heading "Services" [level=3] [ref=e94]
+            - list [ref=e95]:
+              - listitem [ref=e96]:
+                - link "Free Kundli" [ref=e97] [cursor=pointer]:
+                  - /url: /kundli
+              - listitem [ref=e98]:
+                - link "Kundli Matching" [ref=e99] [cursor=pointer]:
+                  - /url: /matching
+              - listitem [ref=e100]:
+                - link "Daily Horoscope" [ref=e101] [cursor=pointer]:
+                  - /url: /horoscope
+              - listitem [ref=e102]:
+                - link "Panchang" [ref=e103] [cursor=pointer]:
+                  - /url: /panchang
+              - listitem [ref=e104]:
+                - link "Dasha Calculator" [ref=e105] [cursor=pointer]:
+                  - /url: /dasha
+              - listitem [ref=e106]:
+                - link "Transit" [ref=e107] [cursor=pointer]:
+                  - /url: /transit
+          - generic [ref=e108]:
+            - heading "Company" [level=3] [ref=e109]
+            - list [ref=e110]:
+              - listitem [ref=e111]:
+                - link "About Us" [ref=e112] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e113]:
+                - link "Blog" [ref=e114] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=e115]:
+                - link "Pricing" [ref=e116] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e117]:
+                - link "Contact" [ref=e118] [cursor=pointer]:
+                  - /url: /contact
+              - listitem [ref=e119]:
+                - link "Careers" [ref=e120] [cursor=pointer]:
+                  - /url: /careers
+          - generic [ref=e121]:
+            - heading "Legal" [level=3] [ref=e122]
+            - list [ref=e123]:
+              - listitem [ref=e124]:
+                - link "Privacy Policy" [ref=e125] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e126]:
+                - link "Terms of Service" [ref=e127] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e128]:
+                - link "Disclaimer" [ref=e129] [cursor=pointer]:
+                  - /url: /disclaimer
+              - listitem [ref=e130]:
+                - link "Refund Policy" [ref=e131] [cursor=pointer]:
+                  - /url: /refund
+        - paragraph [ref=e133]: © 2026 VedicAstro. All rights reserved. Built with ❤️ using Vedic wisdom.
+  - button "Open Next.js Dev Tools" [ref=e139] [cursor=pointer]:
+    - img [ref=e140]
+  - alert [ref=e143]
+```

@@ -1,0 +1,78 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Calibri;}}
+\f0\fs22
+\pard\b Functionality Test Report\par
+\pard\b0 Project: Astro\par
+\pard Scope: Full website (pages, core features, API endpoints)\par
+\pard Tooling: Playwright (dev server on port 3002)\par
+\pard Command: npx playwright test\par
+\pard\par
+\pard\b Summary\par
+\pard\b0 - Total tests: 39\par
+\pard - Passed: 36\par
+\pard - Failed: 3\par
+\pard - Status: Failing in Matching, Login Validation, and Transits\par
+\pard\par
+\pard\b Page-wise Tests (All PASS)\par
+\pard\b0 - PAGE-HOME-001 Home loads\par
+\pard - PAGE-ABOUT-001 About loads\par
+\pard - PAGE-BLOG-001 Blog loads\par
+\pard - PAGE-CONTACT-001 Contact loads\par
+\pard - PAGE-FAQ-001 FAQ loads\par
+\pard - PAGE-TERMS-001 Terms loads\par
+\pard - PAGE-PRIVACY-001 Privacy loads\par
+\pard - PAGE-PREMIUM-001 Premium loads\par
+\pard - PAGE-AUTH-LOGIN-001 Login loads\par
+\pard - PAGE-AUTH-SIGNUP-001 Signup loads\par
+\pard - PAGE-KUNDLI-001 Kundli loads\par
+\pard - PAGE-KUNDLI-PROCESS-001 Kundli Processing loads\par
+\pard - PAGE-KUNDLI-DASH-001 Kundli Dashboard loads\par
+\pard - PAGE-MATCHING-001 Matching loads\par
+\pard - PAGE-HOROSCOPE-001 Horoscope loads\par
+\pard - PAGE-RASHIFAL-001 Rashifal loads\par
+\pard - PAGE-PANCHANG-001 Panchang loads\par
+\pard - PAGE-DASHA-001 Dasha loads\par
+\pard - PAGE-TRANSITS-001 Transits loads\par
+\pard - PAGE-NUMEROLOGY-001 Numerology loads\par
+\pard\par
+\pard\b Feature-wise Tests\par
+\pard\b0 - PASS FEATURE-KUNDLI-001 Form submit and redirect flow\par
+\pard - PASS FEATURE-CONTACT-001 Contact form submission\par
+\pard - PASS FEATURE-NUMEROLOGY-001 Calculate numerology profile\par
+\pard - FAIL FEATURE-MATCHING-001 Show compatibility results\par
+\pard - PASS FEATURE-HOROSCOPE-001 Select sign and view details\par
+\pard - PASS FEATURE-RASHIFAL-001 Toggle yearly view\par
+\pard - PASS FEATURE-PREMIUM-001 Toggle billing cycle pricing\par
+\pard - PASS FEATURE-AUTH-SIGNUP-001 Password mismatch validation\par
+\pard - FAIL FEATURE-AUTH-LOGIN-001 Basic validation\par
+\pard - FAIL FEATURE-TRANSITS-001 Upcoming transits tab\par
+\pard\par
+\pard\b API Tests (All PASS)\par
+\pard\b0 - API-HOROSCOPE-001 Signs list\par
+\pard - API-HOROSCOPE-002 Daily horoscope\par
+\pard - API-HOROSCOPE-003 Monthly horoscope\par
+\pard - API-MATCHING-001 Matching endpoint\par
+\pard - API-PANCHANG-001 Panchang endpoint\par
+\pard - API-TRANSITS-001 Transits endpoint\par
+\pard - API-DASHA-001 Dasha endpoint\par
+\pard - API-KUNDLI-001 Kundli endpoint\par
+\pard - API-AUTH-001 Register endpoint\par
+\pard\par
+\pard\b Failure Details\par
+\pard\b0 1) FEATURE-MATCHING-001: After clicking "Check Compatibility", expected "Check Another Match" button not found.\par
+\pard 2) FEATURE-AUTH-LOGIN-001: After short password, expected validation text "Password must be at least 8 characters" not found.\par
+\pard 3) FEATURE-TRANSITS-001: Upcoming tab becomes active, but no "Transit" text appears in the active panel.\par
+\pard\par
+\pard\b Server Log Note\par
+\pard\b0 - /api/kundli logged "Unexpected end of JSON input" at app/api/kundli/route.ts:8 during the test run.\par
+\pard\par
+\pard\b Artifacts\par
+\pard\b0 - Playwright traces saved under test-results/ for failing tests:\par
+\pard   test-results/features-Feature-tests-FEA-60221--Show-compatibility-results/trace.zip\par
+\pard   test-results/features-Feature-tests-FEA-80804--LOGIN-001-Basic-validation/trace.zip\par
+\pard   test-results/features-Feature-tests-FEA-59598-S-001-Upcoming-transits-tab/trace.zip\par
+\pard\par
+\pard\b Next Steps\par
+\pard\b0 - Fix the three failing UI flows and re-run feature tests.\par
+\pard - Add a guard in /api/kundli for empty JSON bodies.\par
+}

@@ -1,0 +1,330 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VedicAstro" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: VedicAstro
+        - navigation [ref=e10]:
+          - link "Home" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - button "Kundli" [ref=e13] [cursor=pointer]:
+            - text: Kundli
+            - img [ref=e14]
+          - button "Horoscope" [ref=e17] [cursor=pointer]:
+            - text: Horoscope
+            - img [ref=e18]
+          - link "Panchang" [ref=e20] [cursor=pointer]:
+            - /url: /panchang
+          - link "Transits" [ref=e21] [cursor=pointer]:
+            - /url: /transits
+          - link "Numerology" [ref=e22] [cursor=pointer]:
+            - /url: /numerology
+          - link "Premium" [ref=e23] [cursor=pointer]:
+            - /url: /premium
+        - generic [ref=e24]:
+          - button "Toggle theme" [ref=e25] [cursor=pointer]:
+            - img
+            - generic [ref=e26]: Toggle theme
+          - link "Get Started" [ref=e27] [cursor=pointer]:
+            - /url: /auth/login
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - img [ref=e32]
+          - heading "Planetary Transits" [level=1] [ref=e34]
+          - paragraph [ref=e35]: Real-time planetary positions and upcoming major transits based on precise astronomical calculations
+          - generic [ref=e36]:
+            - generic [ref=e37]: "Last updated: 3:00:06 PM"
+            - button [ref=e38] [cursor=pointer]:
+              - img
+        - generic [ref=e39]:
+          - tablist [ref=e40]:
+            - tab "Current Positions" [ref=e41] [cursor=pointer]
+            - tab "Upcoming Transits" [active] [selected] [ref=e42] [cursor=pointer]
+          - tabpanel "Upcoming Transits" [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e47]:
+                - generic [ref=e48]:
+                  - generic [ref=e49]:
+                    - generic [ref=e50]: M
+                    - generic [ref=e51]:
+                      - generic [ref=e52]:
+                        - heading "Moon" [level=3] [ref=e53]
+                        - img [ref=e54]
+                      - paragraph [ref=e57]:
+                        - text: Aries →
+                        - strong [ref=e58]: Taurus
+                      - generic [ref=e59]:
+                        - img [ref=e60]
+                        - generic [ref=e62]: Jan 28, 2026
+                        - generic [ref=e63]: (1 days away)
+                  - generic [ref=e65]: "Duration: 2.25 days"
+                - generic [ref=e66]:
+                  - heading "Expected Effects:" [level=4] [ref=e67]
+                  - list [ref=e68]:
+                    - listitem [ref=e69]:
+                      - generic [ref=e70]: •
+                      - text: Emotional shifts
+                    - listitem [ref=e71]:
+                      - generic [ref=e72]: •
+                      - text: Mother/home matters
+                    - listitem [ref=e73]:
+                      - generic [ref=e74]: •
+                      - text: Public image changes
+                    - listitem [ref=e75]:
+                      - generic [ref=e76]: •
+                      - text: Mental state fluctuations
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - generic [ref=e81]:
+                    - generic [ref=e82]: V
+                    - generic [ref=e83]:
+                      - generic [ref=e84]:
+                        - heading "Venus" [level=3] [ref=e85]
+                        - img [ref=e86]
+                      - paragraph [ref=e87]:
+                        - text: Sagittarius →
+                        - strong [ref=e88]: Capricorn
+                      - generic [ref=e89]:
+                        - img [ref=e90]
+                        - generic [ref=e92]: Feb 13, 2026
+                        - generic [ref=e93]: (18 days away)
+                  - generic [ref=e95]: "Duration: 30 days"
+                - generic [ref=e96]:
+                  - heading "Expected Effects:" [level=4] [ref=e97]
+                  - list [ref=e98]:
+                    - listitem [ref=e99]:
+                      - generic [ref=e100]: •
+                      - text: Relationship energy shifts
+                    - listitem [ref=e101]:
+                      - generic [ref=e102]: •
+                      - text: Artistic inspiration
+                    - listitem [ref=e103]:
+                      - generic [ref=e104]: •
+                      - text: Luxury and comfort
+                    - listitem [ref=e105]:
+                      - generic [ref=e106]: •
+                      - text: Beauty matters
+              - generic [ref=e109]:
+                - generic [ref=e110]:
+                  - generic [ref=e111]:
+                    - generic [ref=e112]: S
+                    - generic [ref=e113]:
+                      - generic [ref=e114]:
+                        - heading "Sun" [level=3] [ref=e115]
+                        - img [ref=e116]
+                      - paragraph [ref=e117]:
+                        - text: Capricorn →
+                        - strong [ref=e118]: Aquarius
+                      - generic [ref=e119]:
+                        - img [ref=e120]
+                        - generic [ref=e122]: Feb 15, 2026
+                        - generic [ref=e123]: (20 days away)
+                  - generic [ref=e125]: "Duration: 30 days"
+                - generic [ref=e126]:
+                  - heading "Expected Effects:" [level=4] [ref=e127]
+                  - list [ref=e128]:
+                    - listitem [ref=e129]:
+                      - generic [ref=e130]: •
+                      - text: Vitality changes
+                    - listitem [ref=e131]:
+                      - generic [ref=e132]: •
+                      - text: Father/authority matters
+                    - listitem [ref=e133]:
+                      - generic [ref=e134]: •
+                      - text: Self-expression shifts
+                    - listitem [ref=e135]:
+                      - generic [ref=e136]: •
+                      - text: Government dealings
+              - generic [ref=e139]:
+                - generic [ref=e140]:
+                  - generic [ref=e141]:
+                    - generic [ref=e142]: M
+                    - generic [ref=e143]:
+                      - generic [ref=e144]:
+                        - heading "Mercury" [level=3] [ref=e145]
+                        - img [ref=e146]
+                      - paragraph [ref=e147]:
+                        - text: Capricorn →
+                        - strong [ref=e148]: Aquarius
+                      - generic [ref=e149]:
+                        - img [ref=e150]
+                        - generic [ref=e152]: Feb 17, 2026
+                        - generic [ref=e153]: (21 days away)
+                  - generic [ref=e155]: "Duration: 25 days"
+                - generic [ref=e156]:
+                  - heading "Expected Effects:" [level=4] [ref=e157]
+                  - list [ref=e158]:
+                    - listitem [ref=e159]:
+                      - generic [ref=e160]: •
+                      - text: Communication style shifts
+                    - listitem [ref=e161]:
+                      - generic [ref=e162]: •
+                      - text: Learning opportunities
+                    - listitem [ref=e163]:
+                      - generic [ref=e164]: •
+                      - text: Business dealings
+                    - listitem [ref=e165]:
+                      - generic [ref=e166]: •
+                      - text: Travel changes
+              - generic [ref=e169]:
+                - generic [ref=e170]:
+                  - generic [ref=e171]:
+                    - generic [ref=e172]: M
+                    - generic [ref=e173]:
+                      - generic [ref=e174]:
+                        - heading "Mars" [level=3] [ref=e175]
+                        - img [ref=e176]
+                      - paragraph [ref=e179]:
+                        - text: Sagittarius →
+                        - strong [ref=e180]: Capricorn
+                      - generic [ref=e181]:
+                        - img [ref=e182]
+                        - generic [ref=e184]: Feb 21, 2026
+                        - generic [ref=e185]: (26 days away)
+                  - generic [ref=e187]: "Duration: 45 days"
+                - generic [ref=e188]:
+                  - heading "Expected Effects:" [level=4] [ref=e189]
+                  - list [ref=e190]:
+                    - listitem [ref=e191]:
+                      - generic [ref=e192]: •
+                      - text: Energy levels change
+                    - listitem [ref=e193]:
+                      - generic [ref=e194]: •
+                      - text: Action-oriented period
+                    - listitem [ref=e195]:
+                      - generic [ref=e196]: •
+                      - text: Competition increases
+                    - listitem [ref=e197]:
+                      - generic [ref=e198]: •
+                      - text: Conflict potential
+              - generic [ref=e201]:
+                - generic [ref=e202]:
+                  - generic [ref=e203]:
+                    - generic [ref=e204]: J
+                    - generic [ref=e205]:
+                      - generic [ref=e206]:
+                        - heading "Jupiter" [level=3] [ref=e207]
+                        - img [ref=e208]
+                      - paragraph [ref=e211]:
+                        - text: Gemini →
+                        - strong [ref=e212]: Cancer
+                      - generic [ref=e213]:
+                        - img [ref=e214]
+                        - generic [ref=e216]: Apr 5, 2026
+                        - generic [ref=e217]: (69 days away)
+                  - generic [ref=e219]: "Duration: 1 year"
+                - generic [ref=e220]:
+                  - heading "Expected Effects:" [level=4] [ref=e221]
+                  - list [ref=e222]:
+                    - listitem [ref=e223]:
+                      - generic [ref=e224]: •
+                      - text: Emotional growth
+                    - listitem [ref=e225]:
+                      - generic [ref=e226]: •
+                      - text: Family blessings
+                    - listitem [ref=e227]:
+                      - generic [ref=e228]: •
+                      - text: Property gains
+                    - listitem [ref=e229]:
+                      - generic [ref=e230]: •
+                      - text: Nurturing energy
+        - generic [ref=e231]:
+          - heading "About Transit Calculations" [level=3] [ref=e233]
+          - generic [ref=e234]:
+            - paragraph [ref=e235]:
+              - text: • All planetary positions use
+              - strong [ref=e236]: Lahiri Ayanamsa
+              - text: (sidereal zodiac as per Vedic astrology)
+            - paragraph [ref=e237]:
+              - text: • Calculations are based on
+              - strong [ref=e238]: VSOP87 theory
+              - text: for precise planetary positions
+            - paragraph [ref=e239]: • Retrograde status indicates apparent backward motion as seen from Earth
+            - paragraph [ref=e240]: • Transit effects are general predictions - individual results depend on your birth chart
+    - contentinfo [ref=e241]:
+      - generic [ref=e242]:
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - link "VedicAstro" [ref=e245] [cursor=pointer]:
+              - /url: /
+              - img [ref=e246]
+              - generic [ref=e249]: VedicAstro
+            - paragraph [ref=e250]: Discover your cosmic blueprint with ancient Vedic wisdom and modern technology.
+            - generic [ref=e251]:
+              - link [ref=e252] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e253]
+              - link [ref=e255] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e256]
+              - link [ref=e258] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e259]
+              - link [ref=e262] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e263]
+          - generic [ref=e266]:
+            - heading "Services" [level=3] [ref=e267]
+            - list [ref=e268]:
+              - listitem [ref=e269]:
+                - link "Free Kundli" [ref=e270] [cursor=pointer]:
+                  - /url: /kundli
+              - listitem [ref=e271]:
+                - link "Kundli Matching" [ref=e272] [cursor=pointer]:
+                  - /url: /matching
+              - listitem [ref=e273]:
+                - link "Daily Horoscope" [ref=e274] [cursor=pointer]:
+                  - /url: /horoscope
+              - listitem [ref=e275]:
+                - link "Panchang" [ref=e276] [cursor=pointer]:
+                  - /url: /panchang
+              - listitem [ref=e277]:
+                - link "Dasha Calculator" [ref=e278] [cursor=pointer]:
+                  - /url: /dasha
+              - listitem [ref=e279]:
+                - link "Transit" [ref=e280] [cursor=pointer]:
+                  - /url: /transit
+          - generic [ref=e281]:
+            - heading "Company" [level=3] [ref=e282]
+            - list [ref=e283]:
+              - listitem [ref=e284]:
+                - link "About Us" [ref=e285] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e286]:
+                - link "Blog" [ref=e287] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=e288]:
+                - link "Pricing" [ref=e289] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e290]:
+                - link "Contact" [ref=e291] [cursor=pointer]:
+                  - /url: /contact
+              - listitem [ref=e292]:
+                - link "Careers" [ref=e293] [cursor=pointer]:
+                  - /url: /careers
+          - generic [ref=e294]:
+            - heading "Legal" [level=3] [ref=e295]
+            - list [ref=e296]:
+              - listitem [ref=e297]:
+                - link "Privacy Policy" [ref=e298] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e299]:
+                - link "Terms of Service" [ref=e300] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e301]:
+                - link "Disclaimer" [ref=e302] [cursor=pointer]:
+                  - /url: /disclaimer
+              - listitem [ref=e303]:
+                - link "Refund Policy" [ref=e304] [cursor=pointer]:
+                  - /url: /refund
+        - paragraph [ref=e306]: © 2026 VedicAstro. All rights reserved. Built with ❤️ using Vedic wisdom.
+  - button "Open Next.js Dev Tools" [ref=e312] [cursor=pointer]:
+    - img [ref=e313]
+  - alert [ref=e316]
+```

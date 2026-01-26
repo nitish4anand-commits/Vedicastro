@@ -1,0 +1,91 @@
+
+> vedic-astro@0.1.0 dev
+> next dev --turbopack --port 3001
+
+   ▲ Next.js 15.5.9 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://172.19.192.1:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.2s
+ ○ Compiling / ...
+ ✓ Compiled / in 9.2s
+ GET / 200 in 5439ms
+ GET / 200 in 989ms
+ ○ Compiling /about ...
+ ✓ Compiled /about in 1153ms
+ GET /about 200 in 1676ms
+ ○ Compiling /blog ...
+ ✓ Compiled /blog in 846ms
+ GET /blog 200 in 1300ms
+ ○ Compiling /contact ...
+ ✓ Compiled /contact in 1739ms
+ GET /contact 200 in 2229ms
+ ○ Compiling /faq ...
+ ✓ Compiled /faq in 837ms
+ GET /faq 200 in 1141ms
+ ○ Compiling /terms ...
+ ✓ Compiled /terms in 813ms
+ GET /terms 200 in 1151ms
+ ○ Compiling /privacy ...
+ ✓ Compiled /privacy in 830ms
+ GET /privacy 200 in 1151ms
+ ○ Compiling /premium ...
+ ✓ Compiled /premium in 856ms
+ GET /premium 200 in 1383ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 806ms
+ GET /auth/login 200 in 1320ms
+ ○ Compiling /auth/signup ...
+ ✓ Compiled /auth/signup in 716ms
+ GET /auth/signup 200 in 1111ms
+ ○ Compiling /kundli ...
+ ✓ Compiled /kundli in 934ms
+ GET /kundli 200 in 1346ms
+ ○ Compiling /kundli/processing ...
+ ✓ Compiled /kundli/processing in 682ms
+ GET /kundli/processing 200 in 971ms
+ ○ Compiling /kundli/dashboard ...
+ ✓ Compiled /kundli/dashboard in 3.2s
+ GET /kundli/dashboard 200 in 3791ms
+ ○ Compiling /matching ...
+ ✓ Compiled /matching in 1200ms
+ GET /matching 200 in 1689ms
+ ○ Compiling /horoscope ...
+ ✓ Compiled /horoscope in 1003ms
+ GET /horoscope 200 in 1409ms
+ ○ Compiling /rashifal ...
+ ✓ Compiled /rashifal in 992ms
+ GET /rashifal 200 in 1431ms
+ ○ Compiling /panchang ...
+ ✓ Compiled /panchang in 1119ms
+ GET /panchang 200 in 1576ms
+ ○ Compiling /dasha ...
+ ✓ Compiled /dasha in 763ms
+ GET /dasha 200 in 1171ms
+ ○ Compiling /transits ...
+ ✓ Compiled /transits in 883ms
+ GET /transits 200 in 1218ms
+ ○ Compiling /numerology ...
+ ✓ Compiled /numerology in 923ms
+ GET /numerology 200 in 1301ms
+ ○ Compiling /api/horoscope ...
+ ✓ Compiled /api/horoscope in 608ms
+ GET /api/horoscope 200 in 1166ms
+ GET /api/horoscope?sign=aries&type=daily 200 in 762ms
+ GET /api/horoscope?sign=aries&type=monthly&month=1&year=2026 200 in 552ms
+ ✓ Compiled /api/matching in 497ms
+ POST /api/matching 200 in 1236ms
+ ○ Compiling /api/panchang ...
+ ✓ Compiled /api/panchang in 507ms
+ GET /api/panchang?date=2026-01-24&lat=28.6139&lng=77.2090&timezone=5.5 200 in 909ms
+ ✓ Compiled /api/transits in 235ms
+ GET /api/transits?date=2026-01-24&timezone=5.5 200 in 635ms
+ ✓ Compiled /api/dasha in 345ms
+ POST /api/dasha 200 in 720ms
+ ✓ Compiled /api/kundli in 311ms
+ POST /api/kundli 200 in 771ms
+ ✓ Compiled /api/auth/register in 232ms
+ POST /api/auth/register 201 in 1078ms
+[?25h
