@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import Anthropic from '@anthropic-ai/sdk'
 import { 
   analyzeEmotion, 
   detectCrisis, 
@@ -6,8 +7,14 @@ import {
   detectConversationTheme,
   CRISIS_HELPLINES 
 } from '@/lib/ai/emotion-detection'
-import { buildSystemPrompt, generateQuickActions } from '@/lib/ai/system-prompt'
+import { buildFullContext, buildDynamicSystemPrompt, generateQuickActions } from '@/lib/ai/context-builder'
 import { enhanceWithAstrology, containsAstroInsight } from '@/lib/ai/astrology-enhancer'
+import { saveMessage, getOrCreateSession, updateSession, getMessageCount } from '@/lib/db/chat-queries'
+
+// Initialize Anthropic client
+const anthropic = process.env.ANTHROPIC_API_KEY 
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null
 
 // Types
 interface ChatMessage {
@@ -28,14 +35,9 @@ interface UserBirthChart {
     antardasha: string
     antardashaEnd: string
   }
+  planets?: Record<string, { sign: string; house: number; degree: number }>
   yogas?: Array<{ name: string; description: string }>
-  doshas?: Array<{ name: string; present: boolean; severity?: string }>
-}
-
-// Get user's birth chart from localStorage/session (passed from frontend)
-function parseBirthChart(chartData: unknown): UserBirthChart | undefined {
-  if (!chartData || typeof chartData !== 'object') return undefined
-  return chartData as UserBirthChart
+  doshas?: Record<string, boolean>
 }
 
 // Detect if user wants meditation/breathing
@@ -43,53 +45,82 @@ function wantsMeditation(message: string): boolean {
   const keywords = [
     'breathing exercise', 'meditation', 'calm down', 'calm me',
     'help me relax', 'anxious', 'panic', 'overwhelmed', 'stressed',
-    'need to breathe', 'can\'t breathe', 'grounding'
+    'need to breathe', 'can\'t breathe', 'grounding', 'breathing'
   ]
   return keywords.some(k => message.toLowerCase().includes(k))
 }
 
-// Call Anthropic Claude API
-async function callClaudeAPI(
+// Call Claude with Extended Thinking using official SDK
+async function callClaudeWithThinking(
+  systemPrompt: string,
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  userMessage: string
+): Promise<{ response: string; thinking: string; tokensUsed: number }> {
+  if (!anthropic) {
+    throw new Error('Anthropic API not configured')
+  }
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 16000,
+    thinking: {
+      type: 'enabled',
+      budget_tokens: 10000
+    },
+    system: systemPrompt,
+    messages: [
+      ...messages.slice(-10).map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      })),
+      { role: 'user' as const, content: userMessage }
+    ]
+  })
+
+  // Extract text response and thinking
+  let textResponse = ''
+  let thinkingProcess = ''
+
+  for (const block of response.content) {
+    if (block.type === 'text') {
+      textResponse += block.text
+    } else if (block.type === 'thinking') {
+      thinkingProcess += block.thinking
+    }
+  }
+
+  return {
+    response: textResponse,
+    thinking: thinkingProcess,
+    tokensUsed: response.usage?.output_tokens || 0
+  }
+}
+
+// Call Claude without extended thinking (fallback)
+async function callClaudeBasic(
   systemPrompt: string,
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   userMessage: string
 ): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  
-  if (!apiKey) {
-    throw new Error('Anthropic API key not configured')
+  if (!anthropic) {
+    throw new Error('Anthropic API not configured')
   }
-  
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2048,
-      system: systemPrompt,
-      messages: [
-        ...messages.slice(-10).map(msg => ({
-          role: msg.role,
-          content: msg.content
-        })),
-        { role: 'user', content: userMessage }
-      ]
-    })
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 4096,
+    system: systemPrompt,
+    messages: [
+      ...messages.slice(-10).map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      })),
+      { role: 'user' as const, content: userMessage }
+    ]
   })
-  
-  if (!response.ok) {
-    const errorData = await response.text()
-    console.error('Claude API error:', errorData)
-    throw new Error('Failed to get response from Claude')
-  }
-  
-  const data = await response.json()
-  const textBlock = data.content?.find((block: { type: string }) => block.type === 'text')
-  return textBlock?.text || ''
+
+  const textBlock = response.content.find(block => block.type === 'text')
+  return textBlock?.type === 'text' ? textBlock.text : ''
 }
 
 // Call OpenAI GPT API as fallback
@@ -226,6 +257,8 @@ export async function POST(req: NextRequest) {
       message, 
       history = [], 
       userName = 'Friend',
+      userId,
+      sessionId: providedSessionId,
       birthChart: rawBirthChart
     } = body
     
@@ -236,73 +269,113 @@ export async function POST(req: NextRequest) {
       )
     }
     
-    // Parse birth chart if provided
-    const birthChart = parseBirthChart(rawBirthChart)
+    // Get or create session
+    const session = await getOrCreateSession(userId || 'anonymous')
+    const sessionId = providedSessionId || session.id
     
-    // Analyze emotional state
-    const emotionalState = analyzeEmotion(message)
+    // Build full context
+    const context = await buildFullContext(
+      userId,
+      sessionId,
+      message,
+      history as ChatMessage[],
+      rawBirthChart as UserBirthChart | null,
+      userName
+    )
     
-    // Detect crisis situation
-    const crisisCheck = detectCrisis(message, emotionalState)
-    
-    if (crisisCheck.isCrisis) {
-      const crisisResponse = getCrisisResponse(crisisCheck.severity)
+    // Check for crisis - highest priority
+    if (context.crisisDetected) {
+      const crisisResponse = getCrisisResponse(context.crisisSeverity)
+      
+      // Save crisis interaction
+      await saveMessage(sessionId, {
+        role: 'user',
+        content: message,
+        emotion: context.emotionalState.emotion,
+        intensity: context.emotionalState.intensity
+      })
+      
+      await saveMessage(sessionId, {
+        role: 'assistant',
+        content: crisisResponse
+      })
+      
       return NextResponse.json({
         reply: crisisResponse,
         messageType: 'crisis-support',
         quickActions: [],
-        emotion: emotionalState.emotion,
-        intensity: emotionalState.intensity,
-        helplines: CRISIS_HELPLINES
+        emotion: context.emotionalState.emotion,
+        intensity: context.emotionalState.intensity,
+        helplines: CRISIS_HELPLINES,
+        sessionId
       })
     }
     
     // Check for meditation request
     if (wantsMeditation(message)) {
+      const meditationResponse = `I can sense you need some calm right now. Let me guide you through a breathing exercise to help regulate your nervous system. 🧘‍♀️
+
+This is a 4-4-6-2 breathing pattern that activates your parasympathetic response and helps calm anxiety.`
+
+      await saveMessage(sessionId, {
+        role: 'user',
+        content: message,
+        emotion: context.emotionalState.emotion
+      })
+      
+      await saveMessage(sessionId, {
+        role: 'assistant',
+        content: meditationResponse
+      })
+
       return NextResponse.json({
-        reply: "I can sense you need some calm right now. Let me guide you through a breathing exercise to help regulate your nervous system. 🧘‍♀️\n\nThis is a 4-4-6-2 breathing pattern that activates your parasympathetic response and helps calm anxiety.",
+        reply: meditationResponse,
         messageType: 'meditation',
         quickActions: [
           { id: '1', label: '🌬️ Start breathing', action: 'start_breathing' },
           { id: '2', label: '💬 Keep talking', action: 'continue_chat' }
         ],
-        emotion: emotionalState.emotion,
-        intensity: emotionalState.intensity
+        emotion: context.emotionalState.emotion,
+        intensity: context.emotionalState.intensity,
+        sessionId
       })
     }
     
-    // Detect conversation theme
-    const theme = detectConversationTheme(message, history)
-    
     // Build system prompt with full context
-    const systemPrompt = buildSystemPrompt({
-      userName,
-      birthChart,
-      emotionalState,
-      conversationTheme: theme,
-      userHistory: history.slice(-5) as ChatMessage[]
-    })
+    const systemPrompt = buildDynamicSystemPrompt(context)
     
     let reply: string
+    let thinkingProcess: string | undefined
+    let tokensUsed: number | undefined
     
-    // Try AI APIs
+    // Try AI APIs in order of preference
     const hasClaudeKey = !!process.env.ANTHROPIC_API_KEY
     const hasOpenAIKey = !!process.env.OPENAI_API_KEY
     
-    if (hasClaudeKey) {
+    if (hasClaudeKey && anthropic) {
       try {
-        reply = await callClaudeAPI(systemPrompt, history, message)
-      } catch (error) {
-        console.error('Claude API error:', error)
-        if (hasOpenAIKey) {
-          try {
-            reply = await callOpenAIAPI(systemPrompt, history, message)
-          } catch (openAIError) {
-            console.error('OpenAI API error:', openAIError)
-            reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+        // Try with extended thinking first
+        const result = await callClaudeWithThinking(systemPrompt, history, message)
+        reply = result.response
+        thinkingProcess = result.thinking
+        tokensUsed = result.tokensUsed
+      } catch (thinkingError) {
+        console.error('Extended thinking failed, trying basic:', thinkingError)
+        try {
+          // Fallback to basic Claude
+          reply = await callClaudeBasic(systemPrompt, history, message)
+        } catch (claudeError) {
+          console.error('Claude API error:', claudeError)
+          if (hasOpenAIKey) {
+            try {
+              reply = await callOpenAIAPI(systemPrompt, history, message)
+            } catch (openAIError) {
+              console.error('OpenAI API error:', openAIError)
+              reply = generateFallbackResponse(message, context.emotionalState.emotion, context.sessionTheme || 'general')
+            }
+          } else {
+            reply = generateFallbackResponse(message, context.emotionalState.emotion, context.sessionTheme || 'general')
           }
-        } else {
-          reply = generateFallbackResponse(message, emotionalState.emotion, theme)
         }
       }
     } else if (hasOpenAIKey) {
@@ -310,18 +383,40 @@ export async function POST(req: NextRequest) {
         reply = await callOpenAIAPI(systemPrompt, history, message)
       } catch (error) {
         console.error('OpenAI API error:', error)
-        reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+        reply = generateFallbackResponse(message, context.emotionalState.emotion, context.sessionTheme || 'general')
       }
     } else {
       // No API keys configured - use intelligent fallback
-      reply = generateFallbackResponse(message, emotionalState.emotion, theme)
+      reply = generateFallbackResponse(message, context.emotionalState.emotion, context.sessionTheme || 'general')
     }
     
     // Enhance with astrological insights if relevant
-    reply = enhanceWithAstrology(reply, message, birthChart)
+    reply = enhanceWithAstrology(reply, message, rawBirthChart as UserBirthChart | undefined)
+    
+    // Save messages to session
+    await saveMessage(sessionId, {
+      role: 'user',
+      content: message,
+      emotion: context.emotionalState.emotion,
+      intensity: context.emotionalState.intensity
+    })
+    
+    await saveMessage(sessionId, {
+      role: 'assistant',
+      content: reply,
+      thinking: thinkingProcess,
+      tokensUsed
+    })
+    
+    // Update session
+    await updateSession(sessionId, {
+      lastActivity: new Date(),
+      messagesCount: await getMessageCount(sessionId),
+      sessionTheme: context.sessionTheme
+    })
     
     // Generate quick actions based on context
-    const quickActions = generateQuickActions(theme, emotionalState.emotion)
+    const quickActions = generateQuickActions(context)
     
     // Check if response has astrological content
     const hasAstro = containsAstroInsight(reply)
@@ -331,10 +426,12 @@ export async function POST(req: NextRequest) {
       quickActions,
       hasAstroInsight: hasAstro,
       messageType: 'text',
-      emotion: emotionalState.emotion,
-      intensity: emotionalState.intensity,
-      sentimentScore: emotionalState.score,
-      theme
+      emotion: context.emotionalState.emotion,
+      intensity: context.emotionalState.intensity,
+      sentimentScore: context.emotionalState.score,
+      theme: context.sessionTheme,
+      sessionId,
+      timestamp: new Date().toISOString()
     })
     
   } catch (error) {
@@ -348,4 +445,17 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// Session creation endpoint
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const userId = searchParams.get('userId') || 'anonymous'
+  
+  const session = await getOrCreateSession(userId)
+  
+  return NextResponse.json({
+    sessionId: session.id,
+    startedAt: session.startedAt
+  })
 }
