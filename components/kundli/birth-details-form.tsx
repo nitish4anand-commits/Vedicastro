@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlacesAutocomplete } from "@/components/ui/places-autocomplete"
+import { TimePicker } from "@/components/forms"
 import { birthDetailsSchema, type BirthDetailsFormData } from "@/lib/validations/birth-details"
 import { useRouter } from "next/navigation"
 
@@ -24,6 +25,7 @@ export function BirthDetailsForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [locationData, setLocationData] = useState<LocationData | null>(null)
   const [placeInput, setPlaceInput] = useState("")
+  const [timeValue, setTimeValue] = useState("12:00")
   const router = useRouter()
   
   const {
@@ -143,14 +145,14 @@ export function BirthDetailsForm() {
               <label htmlFor="timeOfBirth" className="text-sm font-medium">
                 Time of Birth
               </label>
-              <Input
-                id="timeOfBirth"
-                type="time"
-                {...register("timeOfBirth")}
+              <TimePicker
+                value={timeValue}
+                onChange={(time) => {
+                  setTimeValue(time)
+                  setValue("timeOfBirth", time)
+                }}
+                error={errors.timeOfBirth?.message}
               />
-              {errors.timeOfBirth && (
-                <p className="text-sm text-destructive">{errors.timeOfBirth.message}</p>
-              )}
             </div>
 
             {/* Place of Birth */}

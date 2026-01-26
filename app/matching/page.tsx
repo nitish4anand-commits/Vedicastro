@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { TimePicker, LocationAutocomplete, type LocationData } from "@/components/forms"
 
 interface MatchResult {
   koota: string
@@ -46,15 +47,41 @@ export default function MatchingPage() {
     name: '',
     date: '',
     time: '12:00',
-    place: ''
+    place: '',
+    latitude: 0,
+    longitude: 0,
+    timezone: 'Asia/Kolkata'
   })
   
   const [femaleDetails, setFemaleDetails] = useState({
     name: '',
     date: '',
     time: '12:00',
-    place: ''
+    place: '',
+    latitude: 0,
+    longitude: 0,
+    timezone: 'Asia/Kolkata'
   })
+
+  const handleMaleLocationChange = (location: LocationData) => {
+    setMaleDetails(prev => ({
+      ...prev,
+      place: location.placeName,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timezone: location.timezone
+    }))
+  }
+
+  const handleFemaleLocationChange = (location: LocationData) => {
+    setFemaleDetails(prev => ({
+      ...prev,
+      place: location.placeName,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timezone: location.timezone
+    }))
+  }
 
   const handleCalculate = async () => {
     if (!maleDetails.date || !femaleDetails.date) {
@@ -72,10 +99,16 @@ export default function MatchingPage() {
         body: JSON.stringify({
           maleBirthDate: maleDetails.date,
           maleBirthTime: maleDetails.time,
-          maleTimezone: 5.5,
+          maleTimezone: maleDetails.timezone === 'Asia/Kolkata' ? 5.5 : 0,
+          malePlaceOfBirth: maleDetails.place,
+          maleLatitude: maleDetails.latitude,
+          maleLongitude: maleDetails.longitude,
           femaleBirthDate: femaleDetails.date,
           femaleBirthTime: femaleDetails.time,
-          femaleTimezone: 5.5
+          femaleTimezone: femaleDetails.timezone === 'Asia/Kolkata' ? 5.5 : 0,
+          femalePlaceOfBirth: femaleDetails.place,
+          femaleLatitude: femaleDetails.latitude,
+          femaleLongitude: femaleDetails.longitude
         })
       })
 
@@ -149,11 +182,14 @@ export default function MatchingPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Input 
-                    placeholder="Full Name" 
-                    value={maleDetails.name}
-                    onChange={(e) => setMaleDetails({ ...maleDetails, name: e.target.value })}
-                  />
+                  <div>
+                    <label className="text-sm text-muted-foreground">Full Name</label>
+                    <Input 
+                      placeholder="Enter full name" 
+                      value={maleDetails.name}
+                      onChange={(e) => setMaleDetails({ ...maleDetails, name: e.target.value })}
+                    />
+                  </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Date of Birth *</label>
                     <Input 
@@ -164,17 +200,20 @@ export default function MatchingPage() {
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Time of Birth</label>
-                    <Input 
-                      type="time" 
+                    <TimePicker
                       value={maleDetails.time}
-                      onChange={(e) => setMaleDetails({ ...maleDetails, time: e.target.value })}
+                      onChange={(time) => setMaleDetails({ ...maleDetails, time })}
                     />
                   </div>
-                  <Input 
-                    placeholder="Place of Birth" 
-                    value={maleDetails.place}
-                    onChange={(e) => setMaleDetails({ ...maleDetails, place: e.target.value })}
-                  />
+                  <div>
+                    <label className="text-sm text-muted-foreground">Place of Birth</label>
+                    <LocationAutocomplete
+                      value={maleDetails.place}
+                      onChange={handleMaleLocationChange}
+                      onInputChange={(place) => setMaleDetails({ ...maleDetails, place })}
+                      placeholder="Enter city, state, country"
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -187,11 +226,14 @@ export default function MatchingPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Input 
-                    placeholder="Full Name" 
-                    value={femaleDetails.name}
-                    onChange={(e) => setFemaleDetails({ ...femaleDetails, name: e.target.value })}
-                  />
+                  <div>
+                    <label className="text-sm text-muted-foreground">Full Name</label>
+                    <Input 
+                      placeholder="Enter full name" 
+                      value={femaleDetails.name}
+                      onChange={(e) => setFemaleDetails({ ...femaleDetails, name: e.target.value })}
+                    />
+                  </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Date of Birth *</label>
                     <Input 
@@ -202,17 +244,20 @@ export default function MatchingPage() {
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Time of Birth</label>
-                    <Input 
-                      type="time" 
+                    <TimePicker
                       value={femaleDetails.time}
-                      onChange={(e) => setFemaleDetails({ ...femaleDetails, time: e.target.value })}
+                      onChange={(time) => setFemaleDetails({ ...femaleDetails, time })}
                     />
                   </div>
-                  <Input 
-                    placeholder="Place of Birth" 
-                    value={femaleDetails.place}
-                    onChange={(e) => setFemaleDetails({ ...femaleDetails, place: e.target.value })}
-                  />
+                  <div>
+                    <label className="text-sm text-muted-foreground">Place of Birth</label>
+                    <LocationAutocomplete
+                      value={femaleDetails.place}
+                      onChange={handleFemaleLocationChange}
+                      onInputChange={(place) => setFemaleDetails({ ...femaleDetails, place })}
+                      placeholder="Enter city, state, country"
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>
