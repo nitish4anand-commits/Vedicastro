@@ -34,23 +34,25 @@ export default function RadarChartCard({ kootas }: RadarChartCardProps) {
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className="bg-gray-900/60 rounded-2xl p-4 md:p-6 border border-gray-700/50"
+      className="bg-white/60 dark:bg-gray-900/60 rounded-2xl p-4 md:p-6 border border-gray-200/50 dark:border-gray-700/50"
     >
-      <h4 className="text-base md:text-lg font-semibold text-white mb-4">Compatibility Radar</h4>
+      <h4 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4">Compatibility Radar</h4>
       
       <div className="w-full h-[250px] md:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-            <PolarGrid stroke="#4B5563" strokeOpacity={0.5} />
+            <PolarGrid className="stroke-gray-300 dark:stroke-gray-600" strokeOpacity={0.5} />
             <PolarAngleAxis 
               dataKey="koota" 
-              tick={{ fill: '#9CA3AF', fontSize: 10 }}
+              tick={{ fill: 'currentColor', fontSize: 10 }}
+              className="text-gray-600 dark:text-gray-400"
               tickLine={false}
             />
             <PolarRadiusAxis 
               angle={90} 
               domain={[0, 100]}
-              tick={{ fill: '#6B7280', fontSize: 9 }}
+              tick={{ fill: 'currentColor', fontSize: 9 }}
+              className="text-gray-500 dark:text-gray-500"
               tickCount={5}
               axisLine={false}
             />
@@ -72,7 +74,7 @@ export default function RadarChartCard({ kootas }: RadarChartCardProps) {
         </ResponsiveContainer>
       </div>
       
-      <p className="text-[10px] md:text-xs text-gray-400 text-center mt-3">
+      <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
         Larger area indicates stronger overall compatibility
       </p>
     </motion.div>

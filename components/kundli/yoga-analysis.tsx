@@ -59,9 +59,19 @@ const defaultYogas: Yoga[] = [
   },
 ]
 
-export function YogaAnalysis({ yogas = defaultYogas }: YogaAnalysisProps) {
-  const activeYogas = yogas.filter((y) => y.isActive)
-  const inactiveYogas = yogas.filter((y) => !y.isActive)
+export function YogaAnalysis({ yogas }: YogaAnalysisProps) {
+  // Transform API data to match expected format
+  const transformedYogas = yogas ? yogas.map((y: any) => ({
+    name: y.name,
+    type: y.type || 'Raj Yoga',
+    strength: y.strength === 'High' ? 85 : y.strength === 'Medium' ? 65 : 45,
+    isActive: y.strength !== 'Low',
+    description: y.description,
+    planets: y.planets || []
+  })) : defaultYogas
+
+  const activeYogas = transformedYogas.filter((y) => y.isActive)
+  const inactiveYogas = transformedYogas.filter((y) => !y.isActive)
 
   return (
     <div className="space-y-6">
@@ -70,7 +80,7 @@ export function YogaAnalysis({ yogas = defaultYogas }: YogaAnalysisProps) {
         <CardContent className="pt-6">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-4xl font-bold text-purple-500">{yogas.length}</p>
+              <p className="text-4xl font-bold text-purple-500">{transformedYogas.length}</p>
               <p className="text-sm text-muted-foreground">Total Yogas</p>
             </div>
             <div>

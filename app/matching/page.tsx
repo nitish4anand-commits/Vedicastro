@@ -257,21 +257,21 @@ export default function MatchingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-purple-950/20 to-gray-950">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-purple-50/20 to-gray-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-gray-950">
       {/* Header */}
-      <header className="border-b border-gray-800/50 bg-gray-900/30 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={showResults ? handleBackToForm : () => router.push('/')}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
               <span className="text-sm font-medium hidden sm:inline">
                 {showResults ? 'Back to Form' : 'Home'}
               </span>
             </button>
-            <h1 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Heart className="w-5 h-5 text-pink-500" />
               Kundli Matching
             </h1>
@@ -300,57 +300,57 @@ export default function MatchingPage() {
                 >
                   <Heart className="mx-auto h-12 w-12 md:h-16 md:w-16 text-pink-500 mb-4" />
                 </motion.div>
-                <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
-                  Check Marriage <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Compatibility</span>
+                <h2 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+                  Check Marriage <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400">Compatibility</span>
                 </h2>
-                <p className="text-sm md:text-lg text-gray-400 max-w-2xl mx-auto">
+                <p className="text-sm md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                   Using the Ashtakoot Gun Milan system with 36 points analysis
                 </p>
               </div>
 
               <div className="grid gap-6 md:gap-8 md:grid-cols-2">
                 {/* Male Details */}
-                <Card className="bg-gray-900/60 border-gray-700/50 backdrop-blur-sm">
+                <Card className="bg-white/60 dark:bg-gray-900/60 border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm">
                   <CardHeader className="pb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                        <User className="h-5 w-5 text-blue-400" />
+                        <User className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                       </div>
-                      <CardTitle className="text-white">Male (Groom)</CardTitle>
+                      <CardTitle className="text-gray-900 dark:text-white">Male (Groom)</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Full Name</label>
-                      <Input 
-                        placeholder="Enter full name" 
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block font-normal">Full Name</label>
+                      <Input
+                        placeholder="Enter full name"
                         value={maleDetails.name}
                         onChange={(e) => setMaleDetails({ ...maleDetails, name: e.target.value })}
-                        className="bg-gray-800/50 border-gray-700 focus:border-purple-500"
+                        className="bg-gray-100/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-purple-500 h-11 text-base"
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Date of Birth *</label>
-                      <Input 
-                        type="date" 
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block font-normal">Date of Birth *</label>
+                      <Input
+                        type="date"
                         value={maleDetails.date}
                         onChange={(e) => setMaleDetails({ ...maleDetails, date: e.target.value })}
-                        className="bg-gray-800/50 border-gray-700 focus:border-purple-500"
+                        className="bg-gray-100/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-purple-500 h-11 text-base"
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Time of Birth</label>
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block">Time of Birth</label>
                       <TimePicker
                         value={maleDetails.time}
                         onChange={(time) => setMaleDetails({ ...maleDetails, time })}
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Place of Birth</label>
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block">Place of Birth</label>
                       <LocationAutocomplete
                         value={maleDetails.place}
                         onChange={handleMaleLocationChange}
-                        onInputChange={(place) => setMaleDetails({ ...maleDetails, place })}
+                        onInputChange={(place: string) => setMaleDetails({ ...maleDetails, place })}
                         placeholder="Enter city, state, country"
                       />
                     </div>
@@ -358,47 +358,47 @@ export default function MatchingPage() {
                 </Card>
 
                 {/* Female Details */}
-                <Card className="bg-gray-900/60 border-gray-700/50 backdrop-blur-sm">
+                <Card className="bg-white/60 dark:bg-gray-900/60 border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm">
                   <CardHeader className="pb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center border border-pink-500/30">
-                        <User className="h-5 w-5 text-pink-400" />
+                        <User className="h-5 w-5 text-pink-500 dark:text-pink-400" />
                       </div>
-                      <CardTitle className="text-white">Female (Bride)</CardTitle>
+                      <CardTitle className="text-gray-900 dark:text-white">Female (Bride)</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Full Name</label>
-                      <Input 
-                        placeholder="Enter full name" 
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block font-normal">Full Name</label>
+                      <Input
+                        placeholder="Enter full name"
                         value={femaleDetails.name}
                         onChange={(e) => setFemaleDetails({ ...femaleDetails, name: e.target.value })}
-                        className="bg-gray-800/50 border-gray-700 focus:border-purple-500"
+                        className="bg-gray-100/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-purple-500 h-11 text-base"
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Date of Birth *</label>
-                      <Input 
-                        type="date" 
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block font-normal">Date of Birth *</label>
+                      <Input
+                        type="date"
                         value={femaleDetails.date}
                         onChange={(e) => setFemaleDetails({ ...femaleDetails, date: e.target.value })}
-                        className="bg-gray-800/50 border-gray-700 focus:border-purple-500"
+                        className="bg-gray-100/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-purple-500 h-11 text-base"
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Time of Birth</label>
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block">Time of Birth</label>
                       <TimePicker
                         value={femaleDetails.time}
                         onChange={(time) => setFemaleDetails({ ...femaleDetails, time })}
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 mb-1.5 block">Place of Birth</label>
+                      <label className="text-sm text-gray-600 dark:text-gray-400 mb-1.5 block">Place of Birth</label>
                       <LocationAutocomplete
                         value={femaleDetails.place}
                         onChange={handleFemaleLocationChange}
-                        onInputChange={(place) => setFemaleDetails({ ...femaleDetails, place })}
+                        onInputChange={(place: string) => setFemaleDetails({ ...femaleDetails, place })}
                         placeholder="Enter city, state, country"
                       />
                     </div>
@@ -528,9 +528,9 @@ export default function MatchingPage() {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-center py-6 md:py-8 border-t border-gray-800/50"
+                className="text-center py-6 md:py-8 border-t border-gray-200/50 dark:border-gray-800/50"
               >
-                <p className="text-xs md:text-sm text-gray-400 mb-2">
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2">
                   This analysis is based on traditional Vedic astrology principles.
                 </p>
                 <p className="text-[10px] md:text-xs text-gray-500">
@@ -548,20 +548,20 @@ export default function MatchingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center"
+              className="fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center"
             >
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-gray-900 rounded-2xl p-6 md:p-8 border border-purple-500/30 text-center max-w-sm mx-4"
+                className="bg-white dark:bg-gray-900 rounded-2xl p-6 md:p-8 border border-purple-500/30 text-center max-w-sm mx-4 shadow-xl"
               >
                 <div className="relative w-16 h-16 mx-auto mb-4">
-                  <Loader2 className="w-16 h-16 text-purple-400 animate-spin" />
-                  <Heart className="w-6 h-6 text-pink-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  <Loader2 className="w-16 h-16 text-purple-500 dark:text-purple-400 animate-spin" />
+                  <Heart className="w-6 h-6 text-pink-500 dark:text-pink-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                 </div>
-                <p className="text-white font-medium mb-2">Calculating Compatibility...</p>
-                <p className="text-sm text-gray-400">
+                <p className="text-gray-900 dark:text-white font-medium mb-2">Calculating Compatibility...</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Analyzing planetary positions and koota scores
                 </p>
               </motion.div>

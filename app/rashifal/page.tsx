@@ -68,15 +68,24 @@ const getProgressColor = (score: number) => {
 }
 
 export default function RashifalPage() {
-  const currentMonth = new Date().getMonth()
-  const currentYear = new Date().getFullYear()
-  
   const [selectedSign, setSelectedSign] = useState(zodiacSigns[0])
-  const [selectedMonth, setSelectedMonth] = useState(months[currentMonth])
-  const [selectedYear, setSelectedYear] = useState(currentYear.toString())
+  const [selectedMonth, setSelectedMonth] = useState(months[0])
+  const [selectedYear, setSelectedYear] = useState("2026")
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly")
   const [rashifal, setRashifal] = useState<MonthlyHoroscope | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [currentYear, setCurrentYear] = useState<number | null>(null)
+
+  // Initialize with current date on client side only to avoid hydration mismatch
+  useEffect(() => {
+    const currentMonth = new Date().getMonth()
+    const currentYear = new Date().getFullYear()
+    setSelectedMonth(months[currentMonth])
+    setSelectedYear(currentYear.toString())
+    setCurrentYear(currentYear)
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     const fetchRashifal = async () => {
@@ -174,20 +183,21 @@ export default function RashifalPage() {
           </div>
         )}
 
-        {/* Year Selection */}
-        <div className="flex justify-center gap-2 mb-8">
-          {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
-            <Button
-              key={year}
-              variant={selectedYear === year.toString() ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedYear(year.toString())}
-              className={selectedYear === year.toString() ? "gradient-bg" : ""}
-            >
-              {year}
-            </Button>
-          ))}
-        </div>
+        {currentYear && (
+          <div className="flex justify-center gap-2 mb-8">
+            {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
+              <Button
+                key={year}
+                variant={selectedYear === year.toString() ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedYear(year.toString())}
+                className={selectedYear === year.toString() ? "gradient-bg" : ""}
+              >
+                {year}
+              </Button>
+            ))}
+          </div>
+        )}
 
         {/* Results */}
         {loading ? (

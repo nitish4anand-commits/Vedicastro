@@ -29,9 +29,9 @@ export default function CircularProgressCard({ score, total, kootas }: CircularP
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className="bg-gray-900/60 rounded-2xl p-4 md:p-6 border border-gray-700/50"
+      className="bg-white/60 dark:bg-gray-900/60 rounded-2xl p-4 md:p-6 border border-gray-200/50 dark:border-gray-700/50"
     >
-      <h4 className="text-base md:text-lg font-semibold text-white mb-4 md:mb-6">Score Breakdown</h4>
+      <h4 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">Score Breakdown</h4>
 
       <div className="relative w-full max-w-[200px] md:max-w-[240px] mx-auto mb-4 md:mb-6">
         {/* Main circular progress */}
@@ -42,7 +42,7 @@ export default function CircularProgressCard({ score, total, kootas }: CircularP
             cy="100"
             r="80"
             fill="none"
-            stroke="#1F2937"
+            className="stroke-gray-200 dark:stroke-gray-700"
             strokeWidth="14"
           />
 
@@ -76,11 +76,11 @@ export default function CircularProgressCard({ score, total, kootas }: CircularP
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-3xl md:text-4xl font-bold text-white"
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white"
           >
             {score}
           </motion.span>
-          <span className="text-xs md:text-sm text-gray-400">
+          <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
             out of {total}
           </span>
         </div>
@@ -106,7 +106,7 @@ export default function CircularProgressCard({ score, total, kootas }: CircularP
               onMouseLeave={() => setHoveredSegment(null)}
               className={`
                 flex items-center gap-2 p-1.5 md:p-2 rounded-lg transition-all cursor-pointer
-                ${hoveredSegment === name ? 'bg-gray-800 scale-105' : 'bg-transparent hover:bg-gray-800/50'}
+                ${hoveredSegment === name ? 'bg-gray-100 dark:bg-gray-800 scale-105' : 'bg-transparent hover:bg-gray-100/50 dark:hover:bg-gray-800/50'}
               `}
             >
               <div 
@@ -114,7 +114,7 @@ export default function CircularProgressCard({ score, total, kootas }: CircularP
                 style={{ backgroundColor: color }}
               />
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] md:text-xs text-gray-300 truncate">{name}</div>
+                <div className="text-[10px] md:text-xs text-gray-700 dark:text-gray-300 truncate">{name}</div>
                 <div className="text-[10px] md:text-xs font-semibold" style={{ color }}>
                   {kootaScore}/{kootaMax}
                 </div>

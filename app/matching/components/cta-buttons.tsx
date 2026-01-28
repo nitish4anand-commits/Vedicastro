@@ -63,7 +63,7 @@ function CTAButton({ variant, icon: Icon, text, onClick, index }: CTAButtonProps
   const variants = {
     primary: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-transparent shadow-lg shadow-purple-500/20',
     secondary: 'bg-blue-600 hover:bg-blue-700 text-white border-transparent',
-    tertiary: 'bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700 hover:border-gray-600'
+    tertiary: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
   }
 
   return (

@@ -53,12 +53,19 @@ interface PanchangData {
 }
 
 export default function PanchangPage() {
-  const today = new Date().toISOString().split("T")[0]
-  const [selectedDate, setSelectedDate] = useState(today)
+  const [selectedDate, setSelectedDate] = useState("")
   const [location, setLocation] = useState({ lat: 28.6139, lng: 77.2090, name: "New Delhi, India" })
   const [panchangData, setPanchangData] = useState<PanchangData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Initialize date on client side to avoid hydration mismatch
+  useEffect(() => {
+    if (!selectedDate) {
+      const today = new Date().toISOString().split("T")[0]
+      setSelectedDate(today)
+    }
+  }, [selectedDate])
 
   const fetchPanchang = useCallback(async () => {
     setLoading(true)
@@ -79,8 +86,10 @@ export default function PanchangPage() {
   }, [selectedDate, location])
 
   useEffect(() => {
-    fetchPanchang()
-  }, [fetchPanchang])
+    if (selectedDate) {
+      fetchPanchang()
+    }
+  }, [fetchPanchang, selectedDate])
 
   const handleLocationChange = async (locationName: string) => {
     if (!locationName) return

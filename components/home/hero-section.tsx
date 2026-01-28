@@ -2,8 +2,61 @@
 
 import { motion } from "framer-motion"
 import { Sparkles, Calendar, Clock, MapPin, ArrowRight } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+
+// Pre-generated deterministic particle positions to avoid hydration mismatch
+const PARTICLE_SEEDS = [
+  { w: 3, h: 4, l: 5, t: 10, dur: 3.5 },
+  { w: 4, h: 3, l: 12, t: 25, dur: 4.2 },
+  { w: 2, h: 5, l: 18, t: 40, dur: 2.8 },
+  { w: 5, h: 4, l: 25, t: 55, dur: 3.9 },
+  { w: 3, h: 2, l: 32, t: 70, dur: 4.5 },
+  { w: 4, h: 5, l: 38, t: 85, dur: 3.2 },
+  { w: 2, h: 3, l: 45, t: 15, dur: 4.8 },
+  { w: 5, h: 5, l: 52, t: 30, dur: 2.5 },
+  { w: 3, h: 4, l: 58, t: 45, dur: 3.7 },
+  { w: 4, h: 2, l: 65, t: 60, dur: 4.1 },
+  { w: 2, h: 5, l: 72, t: 75, dur: 3.4 },
+  { w: 5, h: 3, l: 78, t: 90, dur: 4.6 },
+  { w: 3, h: 4, l: 85, t: 5, dur: 2.9 },
+  { w: 4, h: 5, l: 92, t: 20, dur: 3.8 },
+  { w: 2, h: 2, l: 8, t: 35, dur: 4.3 },
+  { w: 5, h: 4, l: 15, t: 50, dur: 3.1 },
+  { w: 3, h: 3, l: 22, t: 65, dur: 4.7 },
+  { w: 4, h: 5, l: 28, t: 80, dur: 2.6 },
+  { w: 2, h: 4, l: 35, t: 95, dur: 3.6 },
+  { w: 5, h: 2, l: 42, t: 8, dur: 4.4 },
+  { w: 3, h: 5, l: 48, t: 22, dur: 3.0 },
+  { w: 4, h: 3, l: 55, t: 38, dur: 4.9 },
+  { w: 2, h: 4, l: 62, t: 52, dur: 2.7 },
+  { w: 5, h: 5, l: 68, t: 68, dur: 3.5 },
+  { w: 3, h: 2, l: 75, t: 82, dur: 4.0 },
+  { w: 4, h: 4, l: 82, t: 12, dur: 3.3 },
+  { w: 2, h: 3, l: 88, t: 28, dur: 4.2 },
+  { w: 5, h: 5, l: 95, t: 42, dur: 2.8 },
+  { w: 3, h: 4, l: 3, t: 58, dur: 3.9 },
+  { w: 4, h: 2, l: 10, t: 72, dur: 4.5 },
+  { w: 2, h: 5, l: 17, t: 88, dur: 3.2 },
+  { w: 5, h: 3, l: 24, t: 3, dur: 4.8 },
+  { w: 3, h: 4, l: 30, t: 18, dur: 2.5 },
+  { w: 4, h: 5, l: 37, t: 32, dur: 3.7 },
+  { w: 2, h: 2, l: 44, t: 48, dur: 4.1 },
+  { w: 5, h: 4, l: 50, t: 62, dur: 3.4 },
+  { w: 3, h: 3, l: 57, t: 78, dur: 4.6 },
+  { w: 4, h: 5, l: 64, t: 92, dur: 2.9 },
+  { w: 2, h: 4, l: 70, t: 7, dur: 3.8 },
+  { w: 5, h: 2, l: 77, t: 22, dur: 4.3 },
+  { w: 3, h: 5, l: 84, t: 38, dur: 3.1 },
+  { w: 4, h: 3, l: 90, t: 52, dur: 4.7 },
+  { w: 2, h: 4, l: 97, t: 68, dur: 2.6 },
+  { w: 5, h: 5, l: 4, t: 82, dur: 3.6 },
+  { w: 3, h: 2, l: 11, t: 97, dur: 4.4 },
+  { w: 4, h: 4, l: 18, t: 13, dur: 3.0 },
+  { w: 2, h: 3, l: 25, t: 27, dur: 4.9 },
+  { w: 5, h: 5, l: 32, t: 43, dur: 2.7 },
+  { w: 3, h: 4, l: 39, t: 57, dur: 3.5 },
+]
 
 export function HeroSection() {
   const [formData, setFormData] = useState({
@@ -11,36 +64,43 @@ export function HeroSection() {
     time: "",
     place: "",
   })
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Animated Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-gradient" />
       
-      {/* Particles Background */}
-      <div className="absolute inset-0">
-        {[...Array(50)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="particle absolute bg-purple-500/30"
-            style={{
-              width: Math.random() * 4 + 2 + "px",
-              height: Math.random() * 4 + 2 + "px",
-              left: Math.random() * 100 + "%",
-              top: Math.random() * 100 + "%",
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.2, 0.8, 0.2],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
+      {/* Particles Background - only render after mount */}
+      {mounted && (
+        <div className="absolute inset-0">
+          {PARTICLE_SEEDS.map((p, i) => (
+            <motion.div
+              key={i}
+              className="particle absolute bg-purple-500/30"
+              style={{
+                width: p.w + "px",
+                height: p.h + "px",
+                left: p.l + "%",
+                top: p.t + "%",
+              }}
+              animate={{
+                y: [0, -30, 0],
+                opacity: [0.2, 0.8, 0.2],
+              }}
+              transition={{
+                duration: p.dur,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Zodiac Wheel Background */}
       <motion.div

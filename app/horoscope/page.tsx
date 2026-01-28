@@ -94,13 +94,16 @@ export default function HoroscopePage() {
   const [horoscope, setHoroscope] = useState<DailyHoroscope | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [today, setToday] = useState<string>("")
   
-  const today = new Date().toLocaleDateString("en-US", { 
-    weekday: "long", 
-    year: "numeric", 
-    month: "long", 
-    day: "numeric" 
-  })
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString("en-US", { 
+      weekday: "long", 
+      year: "numeric", 
+      month: "long", 
+      day: "numeric" 
+    }))
+  }, [])
 
   useEffect(() => {
     if (selectedSign) {

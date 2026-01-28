@@ -47,11 +47,11 @@ export default function InteractiveKootasSection({
     <div className="space-y-4">
       <div className="flex items-start gap-3 mb-6">
         <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30 flex-shrink-0">
-          <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+          <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400" />
         </div>
         <div>
-          <h3 className="text-xl md:text-2xl font-semibold text-white">Ashtakoot Analysis</h3>
-          <p className="text-xs md:text-sm text-gray-400 mt-1">
+          <h3 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">Ashtakoot Analysis</h3>
+          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">
             Click on each koota to learn more about its meaning and impact
           </p>
         </div>
@@ -94,8 +94,8 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
       className={`
         group rounded-xl border transition-all duration-300
         ${isExpanded 
-          ? 'bg-gray-800/80 border-purple-500/50 shadow-lg shadow-purple-500/10' 
-          : 'bg-gray-800/40 border-gray-700/50 hover:border-purple-500/30 hover:bg-gray-800/60'
+          ? 'bg-gray-100/80 dark:bg-gray-800/80 border-purple-400/50 dark:border-purple-500/50 shadow-lg shadow-purple-500/10' 
+          : 'bg-gray-100/40 dark:bg-gray-800/40 border-gray-300/50 dark:border-gray-700/50 hover:border-purple-400/30 dark:hover:border-purple-500/30 hover:bg-gray-100/60 dark:hover:bg-gray-800/60'
         }
       `}
     >
@@ -110,10 +110,10 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
           <StatusIcon status={status} />
           
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-white text-sm md:text-base mb-0.5">
+            <h4 className="font-semibold text-gray-900 dark:text-white text-sm md:text-base mb-0.5">
               {koota.koota}
             </h4>
-            <p className="text-xs text-gray-400 group-hover:text-purple-300 transition-colors hidden sm:block">
+            <p className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors hidden sm:block">
               {isExpanded ? 'Click to collapse' : 'Click to learn more'}
             </p>
           </div>
@@ -127,7 +127,7 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
             transition={{ duration: 0.3 }}
             className="flex-shrink-0"
           >
-            <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+            <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400" />
           </motion.div>
         </div>
       </button>
@@ -142,15 +142,15 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="px-3 md:px-4 pb-4 pt-2 space-y-4 border-t border-gray-700/50">
+            <div className="px-3 md:px-4 pb-4 pt-2 space-y-4 border-t border-gray-300/50 dark:border-gray-700/50">
               {/* What it measures */}
               {koota.explanation?.meaning && (
                 <div>
-                  <h5 className="text-xs md:text-sm font-semibold text-purple-300 mb-2 flex items-center gap-2">
+                  <h5 className="text-xs md:text-sm font-semibold text-purple-600 dark:text-purple-300 mb-2 flex items-center gap-2">
                     <div className="w-1 h-3 md:h-4 bg-purple-500 rounded" />
                     What it measures
                   </h5>
-                  <p className="text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
+                  <p className="text-gray-700 dark:text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
                     {koota.explanation.meaning}
                   </p>
                 </div>
@@ -159,11 +159,11 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
               {/* Score Reason */}
               {koota.explanation?.scoreReason && (
                 <div>
-                  <h5 className="text-xs md:text-sm font-semibold text-blue-300 mb-2 flex items-center gap-2">
+                  <h5 className="text-xs md:text-sm font-semibold text-blue-600 dark:text-blue-300 mb-2 flex items-center gap-2">
                     <div className="w-1 h-3 md:h-4 bg-blue-500 rounded" />
                     Why this score
                   </h5>
-                  <p className="text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
+                  <p className="text-gray-700 dark:text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
                     {koota.explanation.scoreReason}
                   </p>
                 </div>
@@ -172,11 +172,11 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
               {/* What this means */}
               {koota.explanation?.impact && (
                 <div>
-                  <h5 className="text-xs md:text-sm font-semibold text-green-300 mb-2 flex items-center gap-2">
+                  <h5 className="text-xs md:text-sm font-semibold text-green-600 dark:text-green-300 mb-2 flex items-center gap-2">
                     <div className="w-1 h-3 md:h-4 bg-green-500 rounded" />
                     What this means for you
                   </h5>
-                  <p className="text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
+                  <p className="text-gray-700 dark:text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
                     {koota.explanation.impact}
                   </p>
                 </div>
@@ -184,15 +184,15 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
 
               {/* Improvement Tips */}
               {koota.explanation?.improvementTips && koota.explanation.improvementTips.length > 0 && (
-                <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 rounded-lg p-3 md:p-4 border border-amber-500/20">
-                  <h5 className="text-xs md:text-sm font-semibold text-amber-300 mb-2 md:mb-3 flex items-center gap-2">
+                <div className="bg-gradient-to-r from-amber-100/50 to-orange-100/50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg p-3 md:p-4 border border-amber-400/20 dark:border-amber-500/20">
+                  <h5 className="text-xs md:text-sm font-semibold text-amber-700 dark:text-amber-300 mb-2 md:mb-3 flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     Practical guidance
                   </h5>
                   <ul className="space-y-1.5 md:space-y-2">
                     {koota.explanation.improvementTips.map((tip, i) => (
-                      <li key={i} className="text-xs md:text-sm text-gray-300 flex gap-2 items-start">
-                        <span className="text-amber-400 flex-shrink-0 mt-0.5">•</span>
+                      <li key={i} className="text-xs md:text-sm text-gray-700 dark:text-gray-300 flex gap-2 items-start">
+                        <span className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">•</span>
                         <span className="flex-1">{tip}</span>
                       </li>
                     ))}
@@ -203,11 +203,11 @@ function KootaCard({ koota, isExpanded, onToggle, index }: KootaCardProps) {
               {/* Fallback if no explanation */}
               {!koota.explanation && koota.description && (
                 <div>
-                  <h5 className="text-xs md:text-sm font-semibold text-purple-300 mb-2 flex items-center gap-2">
+                  <h5 className="text-xs md:text-sm font-semibold text-purple-600 dark:text-purple-300 mb-2 flex items-center gap-2">
                     <div className="w-1 h-3 md:h-4 bg-purple-500 rounded" />
                     Description
                   </h5>
-                  <p className="text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
+                  <p className="text-gray-700 dark:text-gray-300 text-xs md:text-sm leading-relaxed pl-3">
                     {koota.description}
                   </p>
                 </div>

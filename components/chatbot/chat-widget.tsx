@@ -1,22 +1,20 @@
 "use client"
 
-import { useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { MessageCircle, X, Sparkles } from "lucide-react"
 import { useChatStore } from "./chat-store"
 
+// Pre-generated deterministic particle positions
+const PARTICLES = [
+  { id: 0, top: "25%", left: "30%", delay: 0 },
+  { id: 1, top: "40%", left: "55%", delay: 0.3 },
+  { id: 2, top: "60%", left: "35%", delay: 0.6 },
+  { id: 3, top: "35%", left: "65%", delay: 0.9 },
+  { id: 4, top: "55%", left: "50%", delay: 1.2 },
+]
+
 export default function ChatWidget() {
   const { isOpen, toggleChat, unreadCount } = useChatStore()
-
-  // Generate random positions for floating particles - only once
-  const particles = useMemo(() => {
-    return Array.from({ length: 5 }).map((_, i) => ({
-      id: i,
-      top: `${20 + Math.random() * 60}%`,
-      left: `${20 + Math.random() * 60}%`,
-      delay: i * 0.3
-    }))
-  }, [])
 
   return (
     <AnimatePresence>
@@ -47,7 +45,7 @@ export default function ChatWidget() {
                            opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
             {/* Floating particles */}
-            {particles.map((particle) => (
+            {PARTICLES.map((particle) => (
               <motion.div
                 key={particle.id}
                 animate={{

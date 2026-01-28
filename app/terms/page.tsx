@@ -76,7 +76,7 @@ export default function TermsOfServicePage() {
               Please read these terms carefully before using our services.
             </p>
             <p className="text-sm text-muted-foreground mt-4">
-              Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              Last updated: January 27, 2026
             </p>
           </motion.div>
         </div>

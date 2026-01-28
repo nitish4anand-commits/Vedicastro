@@ -33,13 +33,13 @@ export default function StrengthsChallengesGrid({
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-br from-green-900/20 to-green-800/10 border border-green-500/30 rounded-xl p-4 md:p-6"
+          className="bg-gradient-to-br from-green-100/50 to-green-50/50 dark:from-green-900/20 dark:to-green-800/10 border border-green-400/30 dark:border-green-500/30 rounded-xl p-4 md:p-6"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30">
-              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400" />
             </div>
-            <h3 className="text-lg md:text-xl font-semibold text-green-200">Your Strengths</h3>
+            <h3 className="text-lg md:text-xl font-semibold text-green-800 dark:text-green-200">Your Strengths</h3>
           </div>
           
           <ul className="space-y-3">
@@ -50,10 +50,10 @@ export default function StrengthsChallengesGrid({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-green-950/30 rounded-lg p-3 border border-green-500/20"
+                className="bg-green-100/50 dark:bg-green-950/30 rounded-lg p-3 border border-green-400/20 dark:border-green-500/20"
               >
-                <div className="font-medium text-green-300 text-sm md:text-base mb-1">{strength.koota}</div>
-                <div className="text-xs md:text-sm text-green-100/90">{strength.why}</div>
+                <div className="font-medium text-green-700 dark:text-green-300 text-sm md:text-base mb-1">{strength.koota}</div>
+                <div className="text-xs md:text-sm text-green-800/90 dark:text-green-100/90">{strength.why}</div>
               </motion.li>
             ))}
           </ul>
@@ -66,13 +66,13 @@ export default function StrengthsChallengesGrid({
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-br from-orange-900/20 to-orange-800/10 border border-orange-500/30 rounded-xl p-4 md:p-6"
+          className="bg-gradient-to-br from-orange-100/50 to-orange-50/50 dark:from-orange-900/20 dark:to-orange-800/10 border border-orange-400/30 dark:border-orange-500/30 rounded-xl p-4 md:p-6"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
-              <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-orange-400" />
+              <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-orange-600 dark:text-orange-400" />
             </div>
-            <h3 className="text-lg md:text-xl font-semibold text-orange-200">Areas to Address</h3>
+            <h3 className="text-lg md:text-xl font-semibold text-orange-800 dark:text-orange-200">Areas to Address</h3>
           </div>
           
           <ul className="space-y-4">
@@ -83,11 +83,11 @@ export default function StrengthsChallengesGrid({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-orange-950/30 rounded-lg p-3 border border-orange-500/20"
+                className="bg-orange-100/50 dark:bg-orange-950/30 rounded-lg p-3 border border-orange-400/20 dark:border-orange-500/20"
               >
-                <div className="font-medium text-orange-300 text-sm md:text-base mb-1">{challenge.koota}</div>
-                <div className="text-xs md:text-sm text-orange-100/90 mb-2">{challenge.why}</div>
-                <div className="flex items-start gap-2 text-xs text-orange-200 bg-orange-900/20 rounded p-2">
+                <div className="font-medium text-orange-700 dark:text-orange-300 text-sm md:text-base mb-1">{challenge.koota}</div>
+                <div className="text-xs md:text-sm text-orange-800/90 dark:text-orange-100/90 mb-2">{challenge.why}</div>
+                <div className="flex items-start gap-2 text-xs text-orange-700 dark:text-orange-200 bg-orange-200/50 dark:bg-orange-900/20 rounded p-2">
                   <Lightbulb className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                   <span>{challenge.howToAddress}</span>
                 </div>

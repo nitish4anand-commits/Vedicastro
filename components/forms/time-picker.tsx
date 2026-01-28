@@ -113,8 +113,8 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
       <div
         className={cn(
           "flex items-center gap-2 px-3 py-2 rounded-lg",
-          "bg-background border",
-          error ? "border-red-500" : "border-input",
+          "bg-gray-100/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700",
+          error ? "border-red-500" : "",
           "focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20",
           "transition-all"
         )}
@@ -129,15 +129,23 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
           onChange={handleHourChange}
           onBlur={handleHourBlur}
           onFocus={(e) => e.target.select()}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowRight') {
+              e.preventDefault()
+              const minutesInput = e.currentTarget.nextElementSibling?.nextElementSibling as HTMLInputElement | null
+              minutesInput?.focus()
+            }
+          }}
           placeholder="HH"
           maxLength={2}
           className="w-10 text-center bg-transparent outline-none
-                     text-foreground font-medium text-sm
+                     text-gray-900 dark:text-white font-semibold text-base
+                     placeholder:text-gray-500 placeholder:font-normal
                      focus:bg-purple-500/10 rounded cursor-text"
           aria-label="Hours"
         />
 
-        <span className="text-muted-foreground font-bold">:</span>
+        <span className="text-gray-400 dark:text-gray-400 font-bold">:</span>
 
         {/* Minutes */}
         <input
@@ -147,10 +155,18 @@ export default function TimePicker({ value, onChange, error, className }: TimePi
           onChange={handleMinuteChange}
           onBlur={handleMinuteBlur}
           onFocus={(e) => e.target.select()}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft' && e.currentTarget.selectionStart === 0) {
+              e.preventDefault()
+              const hoursInput = e.currentTarget.previousElementSibling?.previousElementSibling as HTMLInputElement | null
+              hoursInput?.focus()
+            }
+          }}
           placeholder="MM"
           maxLength={2}
           className="w-10 text-center bg-transparent outline-none
-                     text-foreground font-medium text-sm
+                     text-gray-900 dark:text-white font-semibold text-base
+                     placeholder:text-gray-500 placeholder:font-normal
                      focus:bg-purple-500/10 rounded cursor-text"
           aria-label="Minutes"
         />

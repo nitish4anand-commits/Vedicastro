@@ -35,7 +35,12 @@ interface AntardashaPeriod {
 }
 
 interface DashaResult {
-  birthNakshatra: string
+  birthNakshatra: {
+    name: string
+    ruler: string
+    deity: string
+    pada: number[]
+  }
   nakshatraLord: string
   mahadashas: DashaPeriod[]
   currentMahadasha: string | null
@@ -172,7 +177,7 @@ export default function DashaPage() {
               </Button>
               <Badge variant="outline" className="text-base py-1 px-3">
                 <Star className="h-4 w-4 mr-2 text-yellow-500" />
-                Birth Nakshatra: {result.birthNakshatra} (Lord: {result.nakshatraLord})
+                Birth Nakshatra: {result.birthNakshatra.name} (Lord: {result.nakshatraLord})
               </Badge>
             </div>
 

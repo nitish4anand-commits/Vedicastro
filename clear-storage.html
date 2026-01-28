@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Kundli Storage</title>
+</head>
+<body>
+    <h1>Clearing localStorage...</h1>
+    <script>
+        localStorage.removeItem('birthDetails');
+        localStorage.removeItem('kundliData');
+        alert('Storage cleared! Redirecting to Kundli form...');
+        window.location.href = '/kundli';
+    </script>
+</body>
+</html>

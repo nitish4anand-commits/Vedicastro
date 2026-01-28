@@ -9,19 +9,21 @@ import { Button } from "@/components/ui/button"
 import { NorthIndianChart } from "@/components/kundli/north-indian-chart"
 import { PlanetaryPositionsTable } from "@/components/kundli/planetary-table"
 import { DashaTimeline } from "@/components/kundli/dasha-timeline"
+import { EnhancedDashaView } from "@/components/kundli/enhanced-dasha-view"
 import { YogaAnalysis } from "@/components/kundli/yoga-analysis"
 import { DoshaAnalysis } from "@/components/kundli/dosha-analysis"
 import { Remedies } from "@/components/kundli/remedies"
 import { AdvancedAnalysisView } from "@/components/kundli/advanced-analysis"
 import { generateKundliPDF } from "@/lib/pdf/generate-kundli-pdf"
+import { useRouter } from "next/navigation"
 
-// Sample data - in production this would come from API/store
+// Sample Kundli data structure for default values
 const sampleKundliData = {
   birthDetails: {
-    name: "John Doe",
-    dateOfBirth: "1990-01-15",
-    timeOfBirth: "10:30",
-    placeOfBirth: "New Delhi, India",
+    name: "",
+    dateOfBirth: "",
+    timeOfBirth: "",
+    placeOfBirth: "",
   },
   kundli: {
     ascendant: {
@@ -70,51 +72,147 @@ const sampleKundliData = {
 
 export default function KundliDashboard() {
   const [advancedAnalysis, setAdvancedAnalysis] = useState<any>(null)
+  const [kundliData, setKundliData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [birthDetails, setBirthDetails] = useState<any>(null)
+  const router = useRouter()
 
-  // Fetch advanced analysis on mount
+  // Load birth details from localStorage and fetch advanced analysis
   useEffect(() => {
-    const fetchAdvancedAnalysis = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        // Use sample birth data for demo - in production, this comes from user input
-        const response = await fetch('/api/kundli', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: "John Doe",
-            dateOfBirth: "1990-01-15",
-            timeOfBirth: "10:30",
-            placeOfBirth: "New Delhi",
-            latitude: 28.6139,
-            longitude: 77.2090,
-            timezone: 5.5
-          })
-        })
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch analysis')
-        }
-        
-        const data = await response.json()
-        if (data.advancedAnalysis) {
-          setAdvancedAnalysis(data.advancedAnalysis)
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-        console.error('Failed to fetch advanced analysis:', err)
-      } finally {
-        setLoading(false)
-      }
+    // Load birth details from localStorage
+    const storedDetails = localStorage.getItem("birthDetails")
+
+    if (!storedDetails) {
+      // No birth details found, redirect to form
+      router.push("/kundli")
+      return
     }
 
-    fetchAdvancedAnalysis()
-  }, [])
+    try {
+      const details = JSON.parse(storedDetails)
+      setBirthDetails(details)
+
+      // Fetch advanced analysis with actual user data
+      const fetchAdvancedAnalysis = async () => {
+        setLoading(true)
+        setError(null)
+        try {
+          const response = await fetch('/api/kundli', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: details.name,
+              dateOfBirth: details.dateOfBirth,
+              timeOfBirth: details.timeOfBirth,
+              placeOfBirth: details.placeOfBirth,
+              latitude: details.latitude || 0,
+              longitude: details.longitude || 0,
+              timezone: parseFloat(details.timezone || "0")
+            })
+          })
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch analysis')
+          }
+
+          const data = await response.json()
+
+          // Store complete Kundli data
+          if (data.status === 'success' && data.data) {
+            setKundliData(data.data)
+            setAdvancedAnalysis(data.data.advancedAnalysis)
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'An error occurred')
+          console.error('Failed to fetch advanced analysis:', err)
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      fetchAdvancedAnalysis()
+    } catch (err) {
+      console.error('Failed to parse birth details:', err)
+      router.push("/kundli")
+    }
+  }, [router])
 
   const handleDownloadPDF = () => {
-    generateKundliPDF(sampleKundliData)
+    if (birthDetails && kundliData) {
+      generateKundliPDF({
+        birthDetails: {
+          name: birthDetails.name,
+          dateOfBirth: birthDetails.dateOfBirth,
+          timeOfBirth: birthDetails.timeOfBirth,
+          placeOfBirth: birthDetails.placeOfBirth,
+        },
+        kundli: kundliData.kundli || sampleKundliData.kundli,
+        planets: kundliData.planets || sampleKundliData.planets,
+        dasha: kundliData.dasha || sampleKundliData.dasha,
+        yogas: kundliData.yogas || sampleKundliData.yogas,
+        doshas: kundliData.doshas || sampleKundliData.doshas
+      })
+    }
+  }
+
+  // Format date from YYYY-MM-DD to DD/MM/YYYY
+  const formatDate = (dateString: string) => {
+    if (!dateString) return ""
+    const [year, month, day] = dateString.split("-")
+    return `${day}/${month}/${year}`
+  }
+
+  // Format time from 24-hour to 12-hour with AM/PM
+  const formatTime = (timeString: string) => {
+    if (!timeString) return ""
+    const [hours, minutes] = timeString.split(":")
+    const hour = parseInt(hours)
+    const period = hour >= 12 ? "PM" : "AM"
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
+    return `${displayHour.toString().padStart(2, "0")}:${minutes} ${period}`
+  }
+
+  // Get zodiac sign emoji
+  const getZodiacEmoji = (sign: string) => {
+    const emojiMap: Record<string, string> = {
+      'Aries': '♈', 'Mesha': '♈',
+      'Taurus': '♉', 'Vrishabha': '♉',
+      'Gemini': '♊', 'Mithuna': '♊',
+      'Cancer': '♋', 'Karka': '♋',
+      'Leo': '♌', 'Simha': '♌',
+      'Virgo': '♍', 'Kanya': '♍',
+      'Libra': '♎', 'Tula': '♎',
+      'Scorpio': '♏', 'Vrishchika': '♏',
+      'Sagittarius': '♐', 'Dhanu': '♐',
+      'Capricorn': '♑', 'Makara': '♑',
+      'Aquarius': '♒', 'Kumbha': '♒',
+      'Pisces': '♓', 'Meena': '♓'
+    }
+    return emojiMap[sign] || '⭐'
+  }
+
+  // Get Sanskrit name for zodiac sign
+  const getSanskritName = (sign: string) => {
+    const sanskritMap: Record<string, string> = {
+      'Aries': 'Mesha', 'Taurus': 'Vrishabha', 'Gemini': 'Mithuna',
+      'Cancer': 'Karka', 'Leo': 'Simha', 'Virgo': 'Kanya',
+      'Libra': 'Tula', 'Scorpio': 'Vrishchika', 'Sagittarius': 'Dhanu',
+      'Capricorn': 'Makara', 'Aquarius': 'Kumbha', 'Pisces': 'Meena'
+    }
+    return sanskritMap[sign] || sign
+  }
+
+  // Show loading state while checking localStorage
+  if (!birthDetails) {
+    return (
+      <div className="container py-12 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-purple-500 mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your Kundli...</p>
+        </div>
+      </div>
+    )
   }
   return (
     <div className="container py-12">
@@ -158,19 +256,19 @@ export default function KundliDashboard() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Name:</span>
-                      <span className="font-medium">John Doe</span>
+                      <span className="font-medium">{birthDetails.name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">DOB:</span>
-                      <span className="font-medium">01/01/1990</span>
+                      <span className="font-medium">{formatDate(birthDetails.dateOfBirth)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">TOB:</span>
-                      <span className="font-medium">12:00 PM</span>
+                      <span className="font-medium">{formatTime(birthDetails.timeOfBirth)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">POB:</span>
-                      <span className="font-medium">Mumbai</span>
+                      <span className="font-medium">{birthDetails.placeOfBirth}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -182,9 +280,18 @@ export default function KundliDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <div className="text-4xl font-bold gradient-text mb-2">♈</div>
-                    <p className="text-2xl font-semibold">Aries</p>
-                    <p className="text-sm text-muted-foreground">Mesha Lagna</p>
+                    {kundliData?.kundli?.ascendant ? (
+                      <>
+                        <div className="text-4xl font-bold gradient-text mb-2">
+                          {getZodiacEmoji(kundliData.kundli.ascendant.sign)}
+                        </div>
+                        <p className="text-2xl font-semibold">{kundliData.kundli.ascendant.sign}</p>
+                        <p className="text-sm text-muted-foreground">{getSanskritName(kundliData.kundli.ascendant.sign)} Lagna</p>
+                        <p className="text-xs text-muted-foreground mt-1">{kundliData.kundli.ascendant.degree}</p>
+                      </>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">Calculating...</div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -195,9 +302,17 @@ export default function KundliDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <div className="text-4xl font-bold gradient-text mb-2">♉</div>
-                    <p className="text-2xl font-semibold">Taurus</p>
-                    <p className="text-sm text-muted-foreground">Vrishabha Rashi</p>
+                    {kundliData?.kundli?.moonSign ? (
+                      <>
+                        <div className="text-4xl font-bold gradient-text mb-2">
+                          {getZodiacEmoji(kundliData.kundli.moonSign.english || kundliData.kundli.moonSign.name)}
+                        </div>
+                        <p className="text-2xl font-semibold">{kundliData.kundli.moonSign.english || kundliData.kundli.moonSign.name}</p>
+                        <p className="text-sm text-muted-foreground">{kundliData.kundli.moonSign.name || getSanskritName(kundliData.kundli.moonSign.english)} Rashi</p>
+                      </>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">Calculating...</div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -208,9 +323,15 @@ export default function KundliDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <p className="text-2xl font-semibold mb-1">Rohini</p>
-                    <p className="text-sm text-muted-foreground mb-2">Pada 2</p>
-                    <div className="text-3xl">🌙</div>
+                    {kundliData?.kundli?.ascendant?.nakshatra ? (
+                      <>
+                        <p className="text-2xl font-semibold mb-1">{kundliData.kundli.ascendant.nakshatra}</p>
+                        <p className="text-sm text-muted-foreground mb-2">Pada {kundliData.kundli.ascendant.pada}</p>
+                        <div className="text-3xl">🌙</div>
+                      </>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">Calculating...</div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -324,7 +445,14 @@ export default function KundliDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-center">
-                  <NorthIndianChart />
+                  <NorthIndianChart
+                    planets={kundliData?.planets?.map((p: any) => ({
+                      name: p.name,
+                      symbol: ({ Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋" } as Record<string, string>)[p.name] || "●",
+                      house: p.house || 1,
+                      retrograde: p.isRetrograde
+                    }))}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -337,21 +465,34 @@ export default function KundliDashboard() {
                 <CardDescription>Detailed positions of all planets in your chart</CardDescription>
               </CardHeader>
               <CardContent>
-                <PlanetaryPositionsTable />
+                <PlanetaryPositionsTable planets={kundliData?.planets} />
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="dasha">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Dasha Periods</CardTitle>
-                <CardDescription>Vimshottari Dasha timeline and predictions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DashaTimeline />
-              </CardContent>
-            </Card>
+            {kundliData?.dasha?.enhanced ? (
+              <EnhancedDashaView dashaData={kundliData.dasha} />
+            ) : (
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Dasha Periods</CardTitle>
+                  <CardDescription>Vimshottari Dasha timeline and predictions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DashaTimeline
+                    currentMahadasha={kundliData?.dasha?.currentDasha}
+                    periods={kundliData?.dasha?.timeline?.map((d: any, idx: number) => ({
+                      planet: d.planet,
+                      startDate: d.startDate,
+                      endDate: d.endDate,
+                      years: parseFloat(d.duration) || 0,
+                      isCurrent: idx === 0
+                    }))}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="yogas">
@@ -361,7 +502,7 @@ export default function KundliDashboard() {
                 <CardDescription>Special planetary combinations and their effects</CardDescription>
               </CardHeader>
               <CardContent>
-                <YogaAnalysis />
+                <YogaAnalysis yogas={kundliData?.yogas} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -373,7 +514,7 @@ export default function KundliDashboard() {
                 <CardDescription>Check for Manglik, Kaal Sarp, and other doshas</CardDescription>
               </CardHeader>
               <CardContent>
-                <DoshaAnalysis />
+                <DoshaAnalysis doshas={kundliData?.doshas} />
               </CardContent>
             </Card>
           </TabsContent>

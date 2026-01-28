@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { generateKundli } from "@/lib/astrology/calculations"
 import { generatePreciseKundli } from "@/lib/astrology/precise-calculations"
 import { generateComprehensiveAnalysis } from "@/lib/astrology/advanced-calculations"
+import { generateEnhancedDashaAnalysis } from "@/lib/astrology/enhanced-dasha-analysis"
 
 export async function POST(request: Request) {
   try {
@@ -82,15 +83,59 @@ export async function POST(request: Request) {
           isRetrograde: p.isRetrograde,
           longitude: p.longitude,
         })),
-        dasha: {
-          currentDasha: kundliData.dashas[0]?.planet || "Unknown",
-          timeline: kundliData.dashas.map(d => ({
-            planet: d.planet,
-            startDate: d.startDate.toISOString().split("T")[0],
-            endDate: d.endDate.toISOString().split("T")[0],
-            duration: `${d.years.toFixed(1)} years`,
-          })),
-        },
+        dasha: (() => {
+          // Generate enhanced dasha analysis
+          const enhancedDashas = generateEnhancedDashaAnalysis(
+            kundliData.dashas,
+            kundliData.planets.map(p => ({
+              name: p.name,
+              sign: p.sign,
+              house: p.house,
+              isRetrograde: p.isRetrograde,
+              isCombust: false // Would need combustion calculation
+            })),
+            kundliData.ascendant.sign
+          )
+
+          return {
+            currentDasha: kundliData.dashas[0]?.planet || "Unknown",
+            timeline: kundliData.dashas.map(d => ({
+              planet: d.planet,
+              startDate: d.startDate.toISOString().split("T")[0],
+              endDate: d.endDate.toISOString().split("T")[0],
+              duration: `${d.years.toFixed(1)} years`,
+            })),
+            enhanced: enhancedDashas.map(ed => ({
+              planet: ed.planet,
+              startDate: ed.startDate.toISOString().split("T")[0],
+              endDate: ed.endDate.toISOString().split("T")[0],
+              years: ed.years,
+              strength: {
+                overall: ed.strength.overall,
+                dignity: ed.strength.dignity,
+                housePlacement: ed.strength.housePlacement,
+                houseStrength: ed.strength.houseStrength,
+                isRetrograde: ed.strength.isRetrograde,
+                isCombust: ed.strength.isCombust
+              },
+              functionalNature: ed.functionalNature,
+              housesRuled: ed.housesRuled,
+              antardashas: ed.antardashas.map(ad => ({
+                planet: ad.planet,
+                startDate: ad.startDate.toISOString().split("T")[0],
+                endDate: ad.endDate.toISOString().split("T")[0],
+                years: ad.years,
+                months: ad.months,
+                days: ad.days,
+                isCurrent: ad.isCurrent,
+                quality: ad.quality
+              })),
+              predictions: ed.predictions,
+              activatedYogas: ed.activatedYogas,
+              remedies: ed.remedies
+            }))
+          }
+        })(),
         yogas: kundliData.yogas.map(y => ({
           name: y.name,
           description: y.description,

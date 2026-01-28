@@ -48,7 +48,34 @@ const getDignityColor = (dignity: string) => {
   }
 }
 
-export function PlanetaryPositionsTable({ planets = defaultPlanets }: PlanetaryTableProps) {
+export function PlanetaryPositionsTable({ planets }: PlanetaryTableProps) {
+  // Transform API data to match the expected Planet interface
+  const transformedPlanets = planets ? planets.map((p: any) => {
+    // Parse degree string like "15°30'" to decimal
+    let degreeNum = 0
+    if (typeof p.degree === 'string') {
+      const match = p.degree.match(/(\d+)°(\d+)'/)
+      if (match) {
+        degreeNum = parseInt(match[1]) + parseInt(match[2]) / 60
+      }
+    } else if (typeof p.degree === 'number') {
+      degreeNum = p.degree
+    }
+
+    return {
+      name: p.name,
+      sign: p.sign || p.signName || 'Unknown',
+      degree: degreeNum,
+      nakshatra: p.nakshatra || 'Unknown',
+      pada: p.pada || 1,
+      house: p.house || 0,
+      lord: p.signLord || p.lord || 'Unknown',
+      dignity: p.dignity || 'Neutral',
+      isRetrograde: p.isRetrograde || false,
+      isCombust: p.isCombust || false
+    }
+  }) : defaultPlanets
+
   return (
     <Card className="glass-card">
       <CardHeader>
@@ -71,7 +98,7 @@ export function PlanetaryPositionsTable({ planets = defaultPlanets }: PlanetaryT
               </tr>
             </thead>
             <tbody>
-              {planets.map((planet) => (
+              {transformedPlanets.map((planet) => (
                 <tr key={planet.name} className="border-b hover:bg-muted/50">
                   <td className="py-3 px-2 font-medium">{planet.name}</td>
                   <td className="py-3 px-2">{planet.sign}</td>

@@ -33,17 +33,17 @@ export default function HeroScoreCard({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900/60 via-pink-900/40 to-purple-900/60 p-6 md:p-8 border border-purple-500/30 shadow-2xl"
+      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-100/60 via-pink-100/40 to-purple-100/60 dark:from-purple-900/60 dark:via-pink-900/40 dark:to-purple-900/60 p-6 md:p-8 border border-purple-300/30 dark:border-purple-500/30 shadow-2xl"
     >
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-pink-400/10 dark:from-purple-600/10 dark:to-pink-600/10 animate-pulse" />
       
       {/* Decorative stars */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-white/40 rounded-full"
+            className="absolute w-1 h-1 bg-purple-500/40 dark:bg-white/40 rounded-full"
             style={{
               left: `${10 + (i * 7)}%`,
               top: `${15 + (i % 4) * 20}%`,
@@ -71,11 +71,11 @@ export default function HeroScoreCard({
             transition={{ delay: 0.2 }}
           >
             <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 rounded-full bg-blue-500/20 flex items-center justify-center border-2 border-blue-400/50 shadow-lg shadow-blue-500/20">
-              <User className="w-7 h-7 md:w-8 md:h-8 text-blue-300" />
+              <User className="w-7 h-7 md:w-8 md:h-8 text-blue-600 dark:text-blue-300" />
             </div>
-            <h3 className="text-base md:text-lg font-semibold text-white truncate max-w-[120px]">{maleName}</h3>
-            <p className="text-xs md:text-sm text-blue-300">{maleNakshatra}</p>
-            <p className="text-xs text-gray-400">{maleSign}</p>
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white truncate max-w-[120px]">{maleName}</h3>
+            <p className="text-xs md:text-sm text-blue-600 dark:text-blue-300">{maleNakshatra}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">{maleSign}</p>
           </motion.div>
           
           <motion.div 
@@ -84,7 +84,7 @@ export default function HeroScoreCard({
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
           >
-            <Heart className="w-10 h-10 md:w-12 md:h-12 text-pink-400 fill-pink-400/50" />
+            <Heart className="w-10 h-10 md:w-12 md:h-12 text-pink-500 dark:text-pink-400 fill-pink-500/50 dark:fill-pink-400/50" />
             <motion.div
               className="absolute inset-0 flex items-center justify-center"
               animate={{ scale: [1, 1.2, 1] }}
@@ -101,11 +101,11 @@ export default function HeroScoreCard({
             transition={{ delay: 0.2 }}
           >
             <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 rounded-full bg-pink-500/20 flex items-center justify-center border-2 border-pink-400/50 shadow-lg shadow-pink-500/20">
-              <User className="w-7 h-7 md:w-8 md:h-8 text-pink-300" />
+              <User className="w-7 h-7 md:w-8 md:h-8 text-pink-600 dark:text-pink-300" />
             </div>
-            <h3 className="text-base md:text-lg font-semibold text-white truncate max-w-[120px]">{femaleName}</h3>
-            <p className="text-xs md:text-sm text-pink-300">{femaleNakshatra}</p>
-            <p className="text-xs text-gray-400">{femaleSign}</p>
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white truncate max-w-[120px]">{femaleName}</h3>
+            <p className="text-xs md:text-sm text-pink-600 dark:text-pink-300">{femaleNakshatra}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">{femaleSign}</p>
           </motion.div>
         </div>
 
@@ -118,10 +118,10 @@ export default function HeroScoreCard({
             className="inline-block"
           >
             <div className="relative">
-              <span className="text-6xl md:text-8xl font-bold text-white">
+              <span className="text-6xl md:text-8xl font-bold text-gray-900 dark:text-white">
                 {score}
               </span>
-              <span className="text-3xl md:text-5xl text-purple-300 ml-1">/{total}</span>
+              <span className="text-3xl md:text-5xl text-purple-600 dark:text-purple-300 ml-1">/{total}</span>
               
               {/* Glow effect */}
               <div className="absolute -inset-4 bg-purple-500/10 blur-2xl rounded-full -z-10" />
@@ -133,7 +133,7 @@ export default function HeroScoreCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <div className="text-2xl md:text-4xl text-purple-200 mb-4 mt-2">
+            <div className="text-2xl md:text-4xl text-purple-700 dark:text-purple-200 mb-4 mt-2">
               {percent}% Compatible
             </div>
             
@@ -147,12 +147,12 @@ export default function HeroScoreCard({
 
 function VerdictBadge({ type }: { type: string }) {
   const styles: Record<string, string> = {
-    'excellent': 'bg-green-500/20 text-green-200 border-green-400/50 shadow-green-500/20',
-    'very-good': 'bg-blue-500/20 text-blue-200 border-blue-400/50 shadow-blue-500/20',
-    'good': 'bg-purple-500/20 text-purple-200 border-purple-400/50 shadow-purple-500/20',
-    'average': 'bg-yellow-500/20 text-yellow-200 border-yellow-400/50 shadow-yellow-500/20',
-    'needs-attention': 'bg-orange-500/20 text-orange-200 border-orange-400/50 shadow-orange-500/20',
-    'poor': 'bg-red-500/20 text-red-200 border-red-400/50 shadow-red-500/20'
+    'excellent': 'bg-green-500/20 text-green-700 dark:text-green-200 border-green-500/50 dark:border-green-400/50 shadow-green-500/20',
+    'very-good': 'bg-blue-500/20 text-blue-700 dark:text-blue-200 border-blue-500/50 dark:border-blue-400/50 shadow-blue-500/20',
+    'good': 'bg-purple-500/20 text-purple-700 dark:text-purple-200 border-purple-500/50 dark:border-purple-400/50 shadow-purple-500/20',
+    'average': 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 border-yellow-500/50 dark:border-yellow-400/50 shadow-yellow-500/20',
+    'needs-attention': 'bg-orange-500/20 text-orange-700 dark:text-orange-200 border-orange-500/50 dark:border-orange-400/50 shadow-orange-500/20',
+    'poor': 'bg-red-500/20 text-red-700 dark:text-red-200 border-red-500/50 dark:border-red-400/50 shadow-red-500/20'
   }
   
   const labels: Record<string, string> = {

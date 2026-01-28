@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Sparkles, Star, ArrowRight } from "lucide-react"
@@ -7,42 +8,83 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Typewriter, FloatingElement, RotatingElement, MagneticButton } from "@/components/ui/motion-effects"
 
+// Pre-generated deterministic particle positions to avoid hydration mismatch
+const PARTICLE_SEEDS = [
+  { w: 4, h: 5, l: 12, t: 8, hue: 280, x: 5, dur: 5, del: 0.2 },
+  { w: 3, h: 4, l: 25, t: 15, hue: 290, x: -3, dur: 6, del: 0.5 },
+  { w: 5, h: 6, l: 38, t: 22, hue: 275, x: 8, dur: 4, del: 0.8 },
+  { w: 2, h: 3, l: 52, t: 35, hue: 300, x: -5, dur: 7, del: 1.1 },
+  { w: 6, h: 7, l: 68, t: 42, hue: 270, x: 2, dur: 5, del: 1.4 },
+  { w: 4, h: 4, l: 82, t: 55, hue: 285, x: -8, dur: 6, del: 1.7 },
+  { w: 3, h: 5, l: 15, t: 65, hue: 295, x: 6, dur: 4, del: 0.3 },
+  { w: 5, h: 5, l: 30, t: 72, hue: 280, x: -2, dur: 7, del: 0.6 },
+  { w: 2, h: 4, l: 45, t: 78, hue: 275, x: 4, dur: 5, del: 0.9 },
+  { w: 7, h: 8, l: 60, t: 85, hue: 290, x: -6, dur: 6, del: 1.2 },
+  { w: 4, h: 3, l: 75, t: 12, hue: 270, x: 3, dur: 4, del: 1.5 },
+  { w: 3, h: 6, l: 88, t: 28, hue: 305, x: -4, dur: 7, del: 1.8 },
+  { w: 5, h: 4, l: 8, t: 48, hue: 280, x: 7, dur: 5, del: 0.4 },
+  { w: 2, h: 2, l: 22, t: 58, hue: 295, x: -7, dur: 6, del: 0.7 },
+  { w: 6, h: 5, l: 35, t: 68, hue: 285, x: 5, dur: 4, del: 1.0 },
+  { w: 4, h: 7, l: 48, t: 18, hue: 275, x: -3, dur: 7, del: 1.3 },
+  { w: 3, h: 3, l: 62, t: 32, hue: 290, x: 8, dur: 5, del: 1.6 },
+  { w: 5, h: 6, l: 78, t: 45, hue: 270, x: -5, dur: 6, del: 1.9 },
+  { w: 2, h: 5, l: 92, t: 62, hue: 300, x: 2, dur: 4, del: 0.1 },
+  { w: 7, h: 4, l: 5, t: 88, hue: 285, x: -8, dur: 7, del: 0.4 },
+  { w: 4, h: 6, l: 18, t: 5, hue: 275, x: 6, dur: 5, del: 0.7 },
+  { w: 3, h: 2, l: 32, t: 92, hue: 295, x: -2, dur: 6, del: 1.0 },
+  { w: 5, h: 5, l: 55, t: 8, hue: 280, x: 4, dur: 4, del: 1.3 },
+  { w: 2, h: 7, l: 70, t: 75, hue: 290, x: -6, dur: 7, del: 1.6 },
+  { w: 6, h: 3, l: 85, t: 38, hue: 270, x: 3, dur: 5, del: 1.9 },
+  { w: 4, h: 5, l: 42, t: 52, hue: 305, x: -4, dur: 6, del: 0.2 },
+  { w: 3, h: 4, l: 58, t: 25, hue: 280, x: 7, dur: 4, del: 0.5 },
+  { w: 5, h: 2, l: 72, t: 95, hue: 285, x: -7, dur: 7, del: 0.8 },
+  { w: 2, h: 6, l: 28, t: 82, hue: 275, x: 5, dur: 5, del: 1.1 },
+  { w: 7, h: 7, l: 95, t: 15, hue: 290, x: -3, dur: 6, del: 1.4 },
+]
+
 export function HeroSection() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-gradient" />
       
-      {/* Floating Particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(30)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="particle absolute rounded-full"
-            style={{
-              width: Math.random() * 6 + 2 + "px",
-              height: Math.random() * 6 + 2 + "px",
-              left: Math.random() * 100 + "%",
-              top: Math.random() * 100 + "%",
-              background: `hsl(${260 + Math.random() * 60}, 70%, 60%)`,
-            }}
-            animate={{
-              y: [0, -50, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: Math.random() * 4 + 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
+      {/* Floating Particles - only render after mount */}
+      {mounted && (
+        <div className="absolute inset-0 overflow-hidden">
+          {PARTICLE_SEEDS.map((p, i) => (
+            <motion.div
+              key={i}
+              className="particle absolute rounded-full"
+              style={{
+                width: p.w + "px",
+                height: p.h + "px",
+                left: p.l + "%",
+                top: p.t + "%",
+                background: `hsl(${p.hue}, 70%, 60%)`,
+              }}
+              animate={{
+                y: [0, -50, 0],
+                x: [0, p.x, 0],
+                opacity: [0.2, 0.8, 0.2],
+                scale: [1, 1.5, 1],
+              }}
+              transition={{
+                duration: p.dur,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: p.del,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="container relative z-10">
         <div className="mx-auto max-w-4xl text-center">

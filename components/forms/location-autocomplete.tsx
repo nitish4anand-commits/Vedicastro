@@ -174,11 +174,13 @@ export default function LocationAutocomplete({
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder={placeholder}
           className={cn(
-            "w-full pl-10 pr-10 py-2 rounded-lg",
-            "bg-background border",
-            error ? "border-red-500" : "border-input",
+            "w-full pl-10 pr-10 py-2.5 rounded-lg",
+            "bg-gray-100/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700",
+            error ? "border-red-500" : "",
             "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
-            "outline-none transition-all text-sm"
+            "outline-none transition-all",
+            "text-gray-900 dark:text-white font-semibold text-base",
+            "placeholder:text-gray-500 placeholder:font-normal"
           )}
         />
         {isLoading && (

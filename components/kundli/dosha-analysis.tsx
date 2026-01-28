@@ -95,9 +95,19 @@ const getSeverityIcon = (present: boolean, severity: string) => {
   }
 }
 
-export function DoshaAnalysis({ doshas = defaultDoshas }: DoshaAnalysisProps) {
-  const presentDoshas = doshas.filter((d) => d.present)
-  const absentDoshas = doshas.filter((d) => !d.present)
+export function DoshaAnalysis({ doshas }: DoshaAnalysisProps) {
+  // Transform API data to match expected format
+  const transformedDoshas = doshas ? doshas.map((d: any) => ({
+    name: d.name,
+    present: d.present || false,
+    severity: d.severity || 'none',
+    type: d.type,
+    description: d.description,
+    remedies: d.remedies || []
+  })) : defaultDoshas
+
+  const presentDoshas = transformedDoshas.filter((d) => d.present)
+  const absentDoshas = transformedDoshas.filter((d) => !d.present)
 
   return (
     <div className="space-y-6">
