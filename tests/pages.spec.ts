@@ -1,9 +1,9 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 const pageCases = [
   { id: "PAGE-HOME-001", name: "Home", path: "/", heading: /Cosmic Blueprint/i },
   { id: "PAGE-ABOUT-001", name: "About", path: "/about", heading: /Ancient Wisdom/i },
-  { id: "PAGE-BLOG-001", name: "Blog", path: "/blog", heading: /VedicAstro Blog/i },
+  { id: "PAGE-BLOG-001", name: "Blog", path: "/blog", heading: /Zodii Blog/i },
   { id: "PAGE-CONTACT-001", name: "Contact", path: "/contact", heading: /Hear From You/i },
   { id: "PAGE-FAQ-001", name: "FAQ", path: "/faq", heading: /Frequently Asked Questions/i },
   { id: "PAGE-TERMS-001", name: "Terms", path: "/terms", heading: /Terms of Service/i },

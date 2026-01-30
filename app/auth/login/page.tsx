@@ -85,7 +85,7 @@ function LoginContent() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
             <Sparkles className="h-8 w-8 text-purple-500" />
-            <span className="text-2xl font-bold gradient-text">VedicAstro</span>
+            <span className="text-2xl font-bold gradient-text">Zodii</span>
           </Link>
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to access your cosmic insights</p>

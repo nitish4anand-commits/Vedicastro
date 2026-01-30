@@ -1,4 +1,4 @@
-﻿# VedicAstro Repo Guide
+# Zodii Repo Guide
 
 This README is a guided map of the repository. It is written for a non-technical reader and for LLMs that need to parse the project quickly.
 

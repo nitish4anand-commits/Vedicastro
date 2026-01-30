@@ -119,7 +119,7 @@ export default function SignupPage() {
           >
             <Link href="/" className="inline-flex items-center gap-2 mb-6">
               <Sparkles className="h-8 w-8 text-purple-500" />
-              <span className="text-2xl font-bold gradient-text">VedicAstro</span>
+              <span className="text-2xl font-bold gradient-text">Zodii</span>
             </Link>
             <h1 className="text-3xl font-bold mb-4">
               Start Your Cosmic Journey Today
@@ -152,7 +152,7 @@ export default function SignupPage() {
             <div className="text-center mb-6 lg:hidden">
               <Link href="/" className="inline-flex items-center gap-2 mb-4">
                 <Sparkles className="h-8 w-8 text-purple-500" />
-                <span className="text-2xl font-bold gradient-text">VedicAstro</span>
+                <span className="text-2xl font-bold gradient-text">Zodii</span>
               </Link>
             </div>
 

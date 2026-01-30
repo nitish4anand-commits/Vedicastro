@@ -2,9 +2,9 @@ export default function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "VedicAstro",
-    "url": "https://vedicastro.com",
-    "logo": "https://vedicastro.com/logo.png",
+    "name": "Zodii",
+    "url": "https://zodii.in",
+    "logo": "https://zodii.in/logo.png",
     "description": "Professional Vedic astrology services including birth chart generation, Kundli matching, daily horoscopes, and personalized astrological guidance.",
     "founder": {
       "@type": "Person",
@@ -19,13 +19,13 @@ export default function OrganizationSchema() {
     },
     "contactPoint": {
       "@type": "ContactPoint",
-      "email": "contact@vedicastro.com",
+      "email": "contact@zodii.in",
       "contactType": "Customer Service"
     },
     "sameAs": [
-      "https://twitter.com/vedicastro",
-      "https://facebook.com/vedicastro",
-      "https://instagram.com/vedicastro"
+      "https://twitter.com/Zodii",
+      "https://facebook.com/Zodii",
+      "https://instagram.com/Zodii"
     ]
   };
 

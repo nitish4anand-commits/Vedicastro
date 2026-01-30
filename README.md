@@ -61,7 +61,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the website.
 ## API Integration
 
 The website integrates with multiple free astrology APIs:
-- VedicAstroAPI
+- ZodiiAPI
 - Prokerala API
 - Free Astrology API
 - AstrologyAPI.com

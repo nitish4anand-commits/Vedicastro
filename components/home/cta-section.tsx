@@ -51,7 +51,7 @@ export function CTASection() {
             transition={{ delay: 0.1 }}
             className="text-lg md:text-xl text-muted-foreground mb-10"
           >
-            Join over 500,000 users who have discovered their cosmic path with VedicAstro. 
+            Join over 500,000 users who have discovered their cosmic path with Zodii. 
             Get your free Kundli today and unlock the secrets of your future.
           </motion.p>
 

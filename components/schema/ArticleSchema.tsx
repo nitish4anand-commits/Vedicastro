@@ -26,10 +26,10 @@ export default function ArticleSchema({
     },
     "publisher": {
       "@type": "Organization",
-      "name": "VedicAstro",
+      "name": "Zodii",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://vedicastro.com/logo.png"
+        "url": "https://zodii.in/logo.png"
       }
     },
     "datePublished": datePublished,

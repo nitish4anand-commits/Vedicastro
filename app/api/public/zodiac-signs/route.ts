@@ -115,9 +115,9 @@ export async function GET() {
   return NextResponse.json({
     data: zodiacSigns,
     meta: {
-      source: 'VedicAstro by Nitish Anand',
-      website: 'https://vedicastro.com',
-      attribution: 'Please credit VedicAstro when using this data'
+      source: 'Zodii by Nitish Anand',
+      website: 'https://zodii.in',
+      attribution: 'Please credit Zodii when using this data'
     }
   });
 }

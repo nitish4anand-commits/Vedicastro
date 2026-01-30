@@ -12,7 +12,7 @@ export default function SoftwareSchema() {
     },
     "creator": {
       "@type": "Organization",
-      "name": "VedicAstro",
+      "name": "Zodii",
       "founder": "Nitish Anand"
     },
     "description": "AI-powered Vedic astrology chatbot providing personalized astrological guidance, birth chart analysis, and life coaching."

@@ -1,4 +1,4 @@
-# VedicAstro robots.txt
+# Zodii robots.txt
 # Owner: Nitish Anand
 # Updated: 2025-01-28
 
@@ -58,5 +58,5 @@ User-agent: SemrushBot
 Crawl-delay: 10
 
 # Sitemaps
-Sitemap: https://vedicastro.com/sitemap.xml
-Sitemap: https://vedicastro.com/blog-sitemap.xml
+Sitemap: https://zodii.in/sitemap.xml
+Sitemap: https://zodii.in/blog-sitemap.xml

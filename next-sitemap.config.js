@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://vedicastro.com',
+  siteUrl: 'https://zodii.in',
   generateRobotsTxt: false, // We created custom robots.txt
   generateIndexSitemap: true,
   changefreq: 'daily',

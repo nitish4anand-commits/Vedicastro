@@ -101,7 +101,7 @@ export default function AboutPage() {
               Bridging <span className="gradient-text">Ancient Wisdom</span> with Modern Technology
             </h1>
             <p className="text-xl text-muted-foreground">
-              VedicAstro is your trusted companion for authentic Vedic astrology insights. 
+              Zodii is your trusted companion for authentic Vedic astrology insights. 
               We combine centuries-old astrological knowledge with cutting-edge technology 
               to bring you accurate, personalized predictions.
             </p>
@@ -145,7 +145,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  VedicAstro was founded in 2010 by a group of passionate astrologers and 
+                  Zodii was founded in 2010 by a group of passionate astrologers and 
                   technologists who shared a common vision: to make authentic Vedic astrology 
                   accessible to everyone, regardless of where they are in the world.
                 </p>
@@ -299,7 +299,7 @@ export default function AboutPage() {
               Ready to Discover Your Cosmic Blueprint?
             </h2>
             <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join millions of users who trust VedicAstro for accurate, 
+              Join millions of users who trust Zodii for accurate, 
               personalized astrological insights.
             </p>
             <motion.a

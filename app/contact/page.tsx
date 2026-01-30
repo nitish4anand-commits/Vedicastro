@@ -26,8 +26,8 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email Us",
-    description: "support@vedicastro.com",
-    link: "mailto:support@vedicastro.com",
+    description: "support@zodii.in",
+    link: "mailto:support@zodii.in",
   },
   {
     icon: Phone,

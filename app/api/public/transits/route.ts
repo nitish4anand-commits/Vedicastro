@@ -111,9 +111,9 @@ export async function GET() {
   return NextResponse.json({
     data: transits,
     meta: {
-      source: 'VedicAstro by Nitish Anand',
-      website: 'https://vedicastro.com',
-      attribution: 'Please credit VedicAstro when using this data',
+      source: 'Zodii by Nitish Anand',
+      website: 'https://zodii.in',
+      attribution: 'Please credit Zodii when using this data',
       note: 'Planetary positions are approximate. For precise calculations, use the full Kundli generator.'
     }
   });

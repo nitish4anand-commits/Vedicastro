@@ -1,4 +1,4 @@
-# 🌟 VedicAstro - Project Structure Guide
+# 🌟 Zodii - Project Structure Guide
 
 Welcome! This guide explains how our Vedic Astrology website is organized. Think of it like a tour of a building - we'll explore each room and explain what happens there.
 
@@ -16,7 +16,7 @@ Here's how our project is organized at the highest level:
 
 ```mermaid
 graph TD
-    A[🏠 VedicAstro Project] --> B[📱 app/]
+    A[🏠 Zodii Project] --> B[📱 app/]
     A --> C[🧩 components/]
     A --> D[📚 lib/]
     A --> E[📝 types/]
@@ -313,7 +313,7 @@ graph TD
 ## 📝 Summary
 
 ```
-VedicAstro/
+Zodii/
 │
 ├── 📱 app/           ← Pages (what users see)
 ├── 🧩 components/    ← UI building blocks

@@ -306,7 +306,7 @@ export default function FAQPage() {
               <Card className="glass-card h-full hover:border-purple-500/50 transition-colors text-center p-6">
                 <Mail className="h-8 w-8 mx-auto mb-3 text-purple-500" />
                 <h3 className="font-semibold mb-1">Email Support</h3>
-                <p className="text-sm text-muted-foreground">support@vedicastro.com</p>
+                <p className="text-sm text-muted-foreground">support@zodii.in</p>
               </Card>
               <Card className="glass-card h-full hover:border-purple-500/50 transition-colors text-center p-6">
                 <Phone className="h-8 w-8 mx-auto mb-3 text-purple-500" />

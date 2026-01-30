@@ -13,7 +13,7 @@ export default function ServiceSchema({ serviceName, description, serviceType }:
     "serviceType": serviceType,
     "provider": {
       "@type": "Organization",
-      "name": "VedicAstro",
+      "name": "Zodii",
       "founder": "Nitish Anand"
     },
     "areaServed": {

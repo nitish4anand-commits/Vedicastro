@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
               <div>
                 <h2 className="text-lg font-semibold mb-2">Our Commitment to You</h2>
                 <p className="text-muted-foreground">
-                  At VedicAstro, we believe in transparency and respect for your privacy. 
+                  At Zodii, we believe in transparency and respect for your privacy. 
                   We only collect information necessary to provide you with the best astrological 
                   services. We never sell your personal data and employ industry-leading security 
                   measures to protect your information.
@@ -188,7 +188,7 @@ export default function PrivacyPolicyPage() {
               If you have any questions or concerns about our privacy practices, 
               please don&apos;t hesitate to contact us.
             </p>
-            <p className="text-purple-500 font-medium">privacy@vedicastro.com</p>
+            <p className="text-purple-500 font-medium">privacy@zodii.in</p>
           </motion.div>
         </div>
       </section>

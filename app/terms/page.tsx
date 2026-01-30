@@ -10,13 +10,13 @@ const sections = [
     id: "acceptance",
     icon: UserCheck,
     title: "Acceptance of Terms",
-    content: `By accessing or using VedicAstro's services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using our services.`,
+    content: `By accessing or using Zodii's services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using our services.`,
   },
   {
     id: "services",
     icon: FileText,
     title: "Description of Services",
-    content: `VedicAstro provides Vedic astrology services including Kundli generation, horoscope predictions, Kundli matching, Panchang information, and related astrological content. Our services are provided for entertainment and informational purposes. We do not guarantee the accuracy of predictions or outcomes.`,
+    content: `Zodii provides Vedic astrology services including Kundli generation, horoscope predictions, Kundli matching, Panchang information, and related astrological content. Our services are provided for entertainment and informational purposes. We do not guarantee the accuracy of predictions or outcomes.`,
   },
   {
     id: "user-accounts",
@@ -46,7 +46,7 @@ const sections = [
     id: "liability",
     icon: AlertTriangle,
     title: "Limitation of Liability",
-    content: `VedicAstro provides astrological information for entertainment and guidance purposes only. We are not responsible for any decisions made based on our predictions. Our services do not constitute professional advice (legal, medical, financial, etc.). We are not liable for any indirect, incidental, or consequential damages.`,
+    content: `Zodii provides astrological information for entertainment and guidance purposes only. We are not responsible for any decisions made based on our predictions. Our services do not constitute professional advice (legal, medical, financial, etc.). We are not liable for any indirect, incidental, or consequential damages.`,
   },
   {
     id: "disputes",

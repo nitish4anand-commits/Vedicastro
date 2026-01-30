@@ -68,7 +68,7 @@ export function Header() {
       }`}>
         <Link href="/" className="flex items-center space-x-2">
           <Sparkles className="h-6 w-6 text-purple-600" />
-          <span className="text-xl font-bold gradient-text">VedicAstro</span>
+          <span className="text-xl font-bold gradient-text">Zodii</span>
         </Link>
 
         {/* Desktop Navigation */}

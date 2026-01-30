@@ -10,7 +10,7 @@ export function Footer() {
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
               <Sparkles className="h-6 w-6 text-purple-600" />
-              <span className="text-xl font-bold gradient-text">VedicAstro</span>
+              <span className="text-xl font-bold gradient-text">Zodii</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Discover your cosmic blueprint with ancient Vedic wisdom and modern technology.
@@ -69,7 +69,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} VedicAstro. All rights reserved. Built with ❤️ using Vedic wisdom.</p>
+          <p>&copy; {new Date().getFullYear()} Zodii. All rights reserved. Built with ❤️ using Vedic wisdom.</p>
         </div>
       </div>
     </footer>

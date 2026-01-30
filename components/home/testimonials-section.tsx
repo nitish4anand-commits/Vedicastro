@@ -21,7 +21,7 @@ const testimonials = [
     location: "Delhi, India",
     avatar: "RK",
     rating: 5,
-    text: "Kundli matching helped me find the perfect life partner. The detailed analysis was spot on. Thank you VedicAstro!",
+    text: "Kundli matching helped me find the perfect life partner. The detailed analysis was spot on. Thank you Zodii!",
     highlight: "Perfect match found",
   },
   {
@@ -110,7 +110,7 @@ export function TestimonialsSection() {
             transition={{ delay: 0.1 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Join thousands of satisfied users who trust VedicAstro for their cosmic guidance
+            Join thousands of satisfied users who trust Zodii for their cosmic guidance
           </motion.p>
         </div>
 

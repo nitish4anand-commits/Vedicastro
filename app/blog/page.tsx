@@ -91,7 +91,7 @@ export default function BlogPage() {
           >
             <Badge variant="purple" className="mb-4">Knowledge Hub</Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              VedicAstro <span className="gradient-text">Blog</span>
+              Zodii <span className="gradient-text">Blog</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
               Explore the ancient wisdom of Vedic astrology through our insightful articles, 
