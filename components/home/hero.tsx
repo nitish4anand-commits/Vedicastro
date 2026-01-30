@@ -6,6 +6,7 @@ import { motion } from "framer-motion"
 import { Sparkles, Star, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PlacesAutocomplete } from "@/components/ui/places-autocomplete"
 import { Typewriter, FloatingElement, RotatingElement, MagneticButton } from "@/components/ui/motion-effects"
 
 // Pre-generated deterministic particle positions to avoid hydration mismatch
@@ -45,10 +46,54 @@ const PARTICLE_SEEDS = [
 export function HeroSection() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [formData, setFormData] = useState({
+    date: "",
+    time: "",
+    place: ""
+  })
+  const [selectedPlace, setSelectedPlace] = useState<{
+    formattedAddress: string
+    latitude: number
+    longitude: number
+    timezone: number
+  } | null>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleGenerate = () => {
+    const hasAnyInput = formData.date || formData.time || formData.place
+    if (hasAnyInput) {
+      const draft = {
+        dateOfBirth: formData.date || "",
+        timeOfBirth: formData.time || "",
+        placeOfBirth: formData.place || "",
+        latitude:
+          selectedPlace && selectedPlace.formattedAddress === formData.place
+            ? selectedPlace.latitude
+            : undefined,
+        longitude:
+          selectedPlace && selectedPlace.formattedAddress === formData.place
+            ? selectedPlace.longitude
+            : undefined,
+        timezone:
+          selectedPlace && selectedPlace.formattedAddress === formData.place
+            ? selectedPlace.timezone
+            : undefined,
+      }
+      try {
+        localStorage.setItem("birthDetailsDraft", JSON.stringify(draft))
+      } catch {
+        // Ignore storage errors and continue navigation.
+      }
+    }
+    router.push("/kundli")
+  }
+
+  const placeNeedsConfirm =
+    formData.place.trim().length > 0 &&
+    (!selectedPlace || selectedPlace.formattedAddress !== formData.place)
 
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
@@ -145,33 +190,55 @@ export function HeroSection() {
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="group">
-                  <Input 
-                    type="date" 
-                    placeholder="Date of Birth" 
+                  <Input
+                    type="date"
+                    placeholder="Date of Birth"
+                    value={formData.date}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
                     className="transition-all group-hover:border-purple-500/50 focus:border-purple-500"
                   />
                 </div>
                 <div className="group">
-                  <Input 
-                    type="time" 
-                    placeholder="Time of Birth" 
+                  <Input
+                    type="time"
+                    placeholder="Time of Birth"
+                    value={formData.time}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, time: e.target.value }))}
                     className="transition-all group-hover:border-purple-500/50 focus:border-purple-500"
                   />
                 </div>
                 <div className="group">
-                  <Input 
-                    type="text" 
-                    placeholder="Place of Birth" 
+                  <PlacesAutocomplete
+                    value={formData.place}
+                    onChange={(value) => {
+                      setFormData((prev) => ({ ...prev, place: value }))
+                      setSelectedPlace(null)
+                    }}
+                    onPlaceSelect={(place) => {
+                      setSelectedPlace({
+                        formattedAddress: place.formattedAddress,
+                        latitude: place.latitude,
+                        longitude: place.longitude,
+                        timezone: place.timezone,
+                      })
+                      setFormData((prev) => ({ ...prev, place: place.formattedAddress }))
+                    }}
+                    placeholder="Place of Birth"
                     className="transition-all group-hover:border-purple-500/50 focus:border-purple-500"
                   />
                 </div>
               </div>
+              {placeNeedsConfirm && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Select a suggestion to use precise coordinates.
+                </p>
+              )}
               <MagneticButton className="w-full mt-6">
                 <Button 
                   variant="gradient" 
                   size="lg" 
                   className="w-full group"
-                  onClick={() => router.push("/kundli")}
+                  onClick={handleGenerate}
                 >
                   <Star className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
                   Generate Kundli

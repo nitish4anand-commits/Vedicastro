@@ -122,6 +122,21 @@ export const WEEKDAYS = [
   { name: 'Saturday (Shanivar)', lord: 'Saturn', color: 'Black/Blue' }
 ]
 
+const MS_PER_DAY = 86400000
+
+function jdToUtcDate(jd: number): Date {
+  return new Date((jd - 2440587.5) * MS_PER_DAY)
+}
+
+function formatTimeWithOffset(utcDate: Date, timezoneOffsetHours: number): string {
+  const shifted = new Date(utcDate.getTime() + timezoneOffsetHours * 3600000)
+  return shifted.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC'
+  })
+}
+
 // Calculate Sun's longitude using Meeus algorithm
 function calculateSunLongitude(jd: number): number {
   const T = (jd - 2451545.0) / 36525
@@ -190,7 +205,7 @@ function calculateMoonLongitude(jd: number): number {
 }
 
 // Calculate Tithi
-export function calculateTithi(jd: number, ayanamsa: number): {
+export function calculateTithi(jd: number, ayanamsa: number, timezone: number): {
   name: string
   paksha: 'Shukla' | 'Krishna'
   index: number
@@ -216,8 +231,8 @@ export function calculateTithi(jd: number, ayanamsa: number): {
   // Estimate end time (rough approximation)
   const remainingDegrees = 12 - (diff - tithiStart)
   const hoursRemaining = (remainingDegrees / 12) * 24
-  const endDate = new Date(Date.now() + hoursRemaining * 3600000)
-  const endTime = endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  const endDateUtc = new Date(jdToUtcDate(jd).getTime() + hoursRemaining * 3600000)
+  const endTime = formatTimeWithOffset(endDateUtc, timezone)
   
   const name = tithiIndex === 14 
     ? (paksha === 'Shukla' ? 'Purnima' : 'Amavasya')
@@ -234,7 +249,7 @@ export function calculateTithi(jd: number, ayanamsa: number): {
 }
 
 // Calculate Nakshatra of Moon
-export function calculateNakshatra(jd: number, ayanamsa: number): {
+export function calculateNakshatra(jd: number, ayanamsa: number, timezone: number): {
   name: string
   lord: string
   deity: string
@@ -258,8 +273,8 @@ export function calculateNakshatra(jd: number, ayanamsa: number): {
   const nakshatraLength = 360 / 27
   const remainingDegrees = nakshatraLength - withinNakshatra
   const hoursRemaining = (remainingDegrees / 360) * 27.3 * 24
-  const endDate = new Date(Date.now() + hoursRemaining * 3600000)
-  const endTime = endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  const endDateUtc = new Date(jdToUtcDate(jd).getTime() + hoursRemaining * 3600000)
+  const endTime = formatTimeWithOffset(endDateUtc, timezone)
   
   return {
     name: nakshatra.name,
@@ -272,7 +287,7 @@ export function calculateNakshatra(jd: number, ayanamsa: number): {
 }
 
 // Calculate Yoga (Sun + Moon longitude / (360/27))
-export function calculateYoga(jd: number, ayanamsa: number): {
+export function calculateYoga(jd: number, ayanamsa: number, timezone: number): {
   name: string
   quality: string
   index: number
@@ -293,8 +308,8 @@ export function calculateYoga(jd: number, ayanamsa: number): {
   const withinYoga = sum % yogaLength
   const remainingDegrees = yogaLength - withinYoga
   const hoursRemaining = (remainingDegrees / 360) * 24 * 1.5
-  const endDate = new Date(Date.now() + hoursRemaining * 3600000)
-  const endTime = endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  const endDateUtc = new Date(jdToUtcDate(jd).getTime() + hoursRemaining * 3600000)
+  const endTime = formatTimeWithOffset(endDateUtc, timezone)
   
   return {
     name: yogaName,
@@ -305,7 +320,7 @@ export function calculateYoga(jd: number, ayanamsa: number): {
 }
 
 // Calculate Karana (half tithi)
-export function calculateKarana(jd: number, ayanamsa: number): {
+export function calculateKarana(jd: number, ayanamsa: number, timezone: number): {
   name: string
   index: number
   endTime: string
@@ -332,8 +347,8 @@ export function calculateKarana(jd: number, ayanamsa: number): {
   // Estimate end time
   const remainingDegrees = 6 - (diff % 6)
   const hoursRemaining = (remainingDegrees / 12) * 24
-  const endDate = new Date(Date.now() + hoursRemaining * 3600000)
-  const endTime = endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  const endDateUtc = new Date(jdToUtcDate(jd).getTime() + hoursRemaining * 3600000)
+  const endTime = formatTimeWithOffset(endDateUtc, timezone)
   
   return {
     name: karanaName,
@@ -343,7 +358,7 @@ export function calculateKarana(jd: number, ayanamsa: number): {
 }
 
 // Calculate sunrise and sunset using NOAA algorithm
-export function calculateSunTimes(date: Date, lat: number, lng: number): {
+export function calculateSunTimes(date: Date, lat: number, lng: number, timezone: number): {
   sunrise: string
   sunset: string
   moonrise: string
@@ -384,10 +399,10 @@ export function calculateSunTimes(date: Date, lat: number, lng: number): {
   const moonsetDate = new Date(setDate.getTime() + moonriseOffset * 3600000)
   
   return {
-    sunrise: riseDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    sunset: setDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    moonrise: moonriseDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    moonset: moonsetDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    sunrise: formatTimeWithOffset(riseDate, timezone),
+    sunset: formatTimeWithOffset(setDate, timezone),
+    moonrise: formatTimeWithOffset(moonriseDate, timezone),
+    moonset: formatTimeWithOffset(moonsetDate, timezone)
   }
 }
 
@@ -411,16 +426,22 @@ export function calculateInauspiciousPeriods(date: Date, sunrise: string, sunset
     return hours * 60 + mins
   }
   
+  const normalizeMinutes = (mins: number): number => {
+    const rounded = Math.round(mins)
+    return ((rounded % 1440) + 1440) % 1440
+  }
   const formatTime = (mins: number): string => {
-    const hours = Math.floor(mins / 60)
-    const minutes = mins % 60
+    const totalMins = normalizeMinutes(mins)
+    const hours = Math.floor(totalMins / 60)
+    const minutes = totalMins % 60
     const period = hours >= 12 ? 'PM' : 'AM'
     const displayHours = hours % 12 || 12
     return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`
   }
   
   const sunriseMins = parseTime(sunrise)
-  const sunsetMins = parseTime(sunset)
+  let sunsetMins = parseTime(sunset)
+  if (sunsetMins < sunriseMins) sunsetMins += 1440
   const dayLength = sunsetMins - sunriseMins
   const eighthPart = dayLength / 8
   
@@ -475,16 +496,22 @@ export function calculateAuspiciousMuhurtas(sunrise: string, sunset: string): {
     return hours * 60 + mins
   }
   
+  const normalizeMinutes = (mins: number): number => {
+    const rounded = Math.round(mins)
+    return ((rounded % 1440) + 1440) % 1440
+  }
   const formatTime = (mins: number): string => {
-    const hours = Math.floor(mins / 60) % 24
-    const minutes = mins % 60
+    const totalMins = normalizeMinutes(mins)
+    const hours = Math.floor(totalMins / 60) % 24
+    const minutes = totalMins % 60
     const period = hours >= 12 ? 'PM' : 'AM'
     const displayHours = hours % 12 || 12
     return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`
   }
   
   const sunriseMins = parseTime(sunrise)
-  const sunsetMins = parseTime(sunset)
+  let sunsetMins = parseTime(sunset)
+  if (sunsetMins < sunriseMins) sunsetMins += 1440
   const midday = (sunriseMins + sunsetMins) / 2
   const muhurtaLength = (sunsetMins - sunriseMins) / 15 // 15 muhurtas in a day
   
@@ -529,16 +556,22 @@ export function calculateChoghadiya(sunrise: string, sunset: string, day: number
     return hours * 60 + mins
   }
   
+  const normalizeMinutes = (mins: number): number => {
+    const rounded = Math.round(mins)
+    return ((rounded % 1440) + 1440) % 1440
+  }
   const formatTime = (mins: number): string => {
-    const hours = Math.floor(mins / 60) % 24
-    const minutes = mins % 60
+    const totalMins = normalizeMinutes(mins)
+    const hours = Math.floor(totalMins / 60) % 24
+    const minutes = totalMins % 60
     const period = hours >= 12 ? 'PM' : 'AM'
     const displayHours = hours % 12 || 12
     return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`
   }
   
   const sunriseMins = parseTime(sunrise)
-  const sunsetMins = parseTime(sunset)
+  let sunsetMins = parseTime(sunset)
+  if (sunsetMins < sunriseMins) sunsetMins += 1440
   const dayLength = sunsetMins - sunriseMins
   const choghadiyaLength = dayLength / 8
   
@@ -573,13 +606,13 @@ export function calculateChoghadiya(sunrise: string, sunset: string, day: number
 }
 
 // Calculate Hindu date (Vikram Samvat)
-export function calculateHinduDate(date: Date, jd: number, ayanamsa: number): {
+export function calculateHinduDate(date: Date, jd: number, ayanamsa: number, timezone: number): {
   gregorian: string
   hindu: string
   vikramSamvat: number
   shakaSamvat: number
 } {
-  const tithi = calculateTithi(jd, ayanamsa)
+  const tithi = calculateTithi(jd, ayanamsa, timezone)
   const moonLon = calculateMoonLongitude(jd) - ayanamsa
   let normalizedLon = moonLon % 360
   if (normalizedLon < 0) normalizedLon += 360
@@ -614,12 +647,12 @@ export function calculateCompletePanchang(date: Date, lat: number, lng: number, 
   const jd = getJulianDay(date, timezone)
   const ayanamsa = calculatePreciseAyanamsa(jd)
   
-  const sunTimes = calculateSunTimes(date, lat, lng)
-  const tithi = calculateTithi(jd, ayanamsa)
-  const nakshatra = calculateNakshatra(jd, ayanamsa)
-  const yoga = calculateYoga(jd, ayanamsa)
-  const karana = calculateKarana(jd, ayanamsa)
-  const hinduDate = calculateHinduDate(date, jd, ayanamsa)
+  const sunTimes = calculateSunTimes(date, lat, lng, timezone)
+  const tithi = calculateTithi(jd, ayanamsa, timezone)
+  const nakshatra = calculateNakshatra(jd, ayanamsa, timezone)
+  const yoga = calculateYoga(jd, ayanamsa, timezone)
+  const karana = calculateKarana(jd, ayanamsa, timezone)
+  const hinduDate = calculateHinduDate(date, jd, ayanamsa, timezone)
   const weekday = WEEKDAYS[date.getDay()]
   const inauspicious = calculateInauspiciousPeriods(date, sunTimes.sunrise, sunTimes.sunset)
   const auspicious = calculateAuspiciousMuhurtas(sunTimes.sunrise, sunTimes.sunset)

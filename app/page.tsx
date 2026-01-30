@@ -7,10 +7,15 @@ import { TestimonialsSection } from "@/components/home/testimonials-section"
 import { ScrollProgress, AnimatedBackground } from "@/components/ui/motion-effects"
 import { StatsSection } from "@/components/home/stats-section"
 import { CTASection } from "@/components/home/cta-section"
+import { OrganizationSchema, SoftwareSchema } from "@/components/schema"
 
 export default function HomePage() {
   return (
     <>
+      {/* Schema.org markup for SEO and AI discoverability */}
+      <OrganizationSchema />
+      <SoftwareSchema />
+      
       <ScrollProgress />
       <AnimatedBackground />
       <HeroSection />

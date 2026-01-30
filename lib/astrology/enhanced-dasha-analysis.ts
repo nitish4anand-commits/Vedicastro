@@ -243,6 +243,84 @@ export function getFunctionalNature(planetName: string, ascendantSign: number): 
   return 'Neutral'
 }
 
+// Natural planetary friendships for quality calculation
+const NATURAL_FRIENDS: Record<string, string[]> = {
+  Sun: ['Moon', 'Mars', 'Jupiter'],
+  Moon: ['Sun', 'Mercury'],
+  Mars: ['Sun', 'Moon', 'Jupiter'],
+  Mercury: ['Sun', 'Venus'],
+  Jupiter: ['Sun', 'Moon', 'Mars'],
+  Venus: ['Mercury', 'Saturn'],
+  Saturn: ['Mercury', 'Venus'],
+  Rahu: ['Mercury', 'Venus', 'Saturn'],
+  Ketu: ['Mars', 'Jupiter']
+}
+
+const NATURAL_ENEMIES: Record<string, string[]> = {
+  Sun: ['Venus', 'Saturn', 'Rahu', 'Ketu'],
+  Moon: ['Rahu', 'Ketu'],
+  Mars: ['Mercury'],
+  Mercury: ['Moon'],
+  Jupiter: ['Mercury', 'Venus'],
+  Venus: ['Sun', 'Moon'],
+  Saturn: ['Sun', 'Moon', 'Mars'],
+  Rahu: ['Sun', 'Moon', 'Mars'],
+  Ketu: ['Sun', 'Moon']
+}
+
+// Calculate antardasha quality based on planet relationships
+function calculateAntardashaQuality(
+  mahadashaLord: string,
+  antardashaLord: string
+): 'Excellent' | 'Good' | 'Mixed' | 'Challenging' | 'Difficult' {
+  // Same planet - generally good
+  if (mahadashaLord === antardashaLord) {
+    return 'Good'
+  }
+
+  const friends = NATURAL_FRIENDS[mahadashaLord] || []
+  const enemies = NATURAL_ENEMIES[mahadashaLord] || []
+
+  // Special excellent combinations
+  const excellentCombos: Record<string, string[]> = {
+    Jupiter: ['Sun', 'Moon', 'Mars'],
+    Venus: ['Mercury', 'Saturn'],
+    Moon: ['Jupiter'],
+    Sun: ['Jupiter', 'Mars'],
+    Mars: ['Jupiter', 'Sun']
+  }
+
+  if (excellentCombos[mahadashaLord]?.includes(antardashaLord)) {
+    return 'Excellent'
+  }
+
+  if (friends.includes(antardashaLord)) {
+    return 'Good'
+  }
+
+  if (enemies.includes(antardashaLord)) {
+    // Check for difficult combinations
+    const difficultCombos = [
+      ['Saturn', 'Mars'],
+      ['Sun', 'Saturn'],
+      ['Moon', 'Rahu'],
+      ['Moon', 'Ketu'],
+      ['Mars', 'Rahu']
+    ]
+
+    for (const combo of difficultCombos) {
+      if ((combo[0] === mahadashaLord && combo[1] === antardashaLord) ||
+          (combo[1] === mahadashaLord && combo[0] === antardashaLord)) {
+        return 'Difficult'
+      }
+    }
+
+    return 'Challenging'
+  }
+
+  return 'Mixed'
+}
+
 // Generate Antardashas for a Mahadasha
 export function generateAntardashas(
   mahadashaLord: string,
@@ -255,25 +333,36 @@ export function generateAntardashas(
 
   if (!proportions) return []
 
-  // Start with the Mahadasha lord itself
-  const sequence = [mahadashaLord, ...DASHA_SEQUENCE.filter(p => p !== mahadashaLord)]
+  // Vimshottari sequence: Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn, Mercury
+  const vimshottariOrder = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury']
+
+  // Find starting position (Mahadasha lord)
+  const startIdx = vimshottariOrder.indexOf(mahadashaLord)
+
+  // Build sequence starting from Mahadasha lord
+  const sequence: string[] = []
+  for (let i = 0; i < 9; i++) {
+    sequence.push(vimshottariOrder[(startIdx + i) % 9])
+  }
 
   let currentStartDate = new Date(mahadashaStart)
 
   for (const planet of sequence) {
     const yearsDecimal = proportions[planet]
+    const totalDays = yearsDecimal * 365.25
     const years = Math.floor(yearsDecimal)
-    const remainingDays = (yearsDecimal - years) * 365.25
+    const remainingDays = totalDays - (years * 365.25)
     const months = Math.floor(remainingDays / 30.44)
     const days = Math.round(remainingDays - (months * 30.44))
 
     // Calculate end date
     const endDate = new Date(currentStartDate)
-    endDate.setFullYear(endDate.getFullYear() + years)
-    endDate.setMonth(endDate.getMonth() + months)
-    endDate.setDate(endDate.getDate() + days)
+    endDate.setTime(endDate.getTime() + totalDays * 24 * 60 * 60 * 1000)
 
     const isCurrent = currentDate >= currentStartDate && currentDate < endDate
+
+    // Calculate quality based on planet relationships
+    const quality = calculateAntardashaQuality(mahadashaLord, planet)
 
     antardashas.push({
       planet,
@@ -283,11 +372,11 @@ export function generateAntardashas(
       months,
       days,
       isCurrent,
-      quality: 'Mixed', // Will be enhanced with actual analysis
-      keyEvents: [] // Will be populated with predictions
+      quality,
+      keyEvents: []
     })
 
-    currentStartDate = endDate
+    currentStartDate = new Date(endDate)
   }
 
   return antardashas

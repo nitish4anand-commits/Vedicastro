@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Calendar, Sun, Moon, Clock, MapPin, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react"
+import { Calendar, Sun, Moon, Clock, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { PlacesAutocomplete } from "@/components/ui/places-autocomplete"
 
 interface PanchangData {
   date: {
@@ -54,7 +55,9 @@ interface PanchangData {
 
 export default function PanchangPage() {
   const [selectedDate, setSelectedDate] = useState("")
-  const [location, setLocation] = useState({ lat: 28.6139, lng: 77.2090, name: "New Delhi, India" })
+  const defaultLocation = { lat: 28.6139, lng: 77.2090, name: "New Delhi, India", timezone: 5.5 }
+  const [location, setLocation] = useState(defaultLocation)
+  const [locationInput, setLocationInput] = useState(defaultLocation.name)
   const [panchangData, setPanchangData] = useState<PanchangData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -72,7 +75,7 @@ export default function PanchangPage() {
     setError(null)
     try {
       const response = await fetch(
-        `/api/panchang?date=${selectedDate}&lat=${location.lat}&lng=${location.lng}&timezone=5.5`
+        `/api/panchang?date=${selectedDate}&lat=${location.lat}&lng=${location.lng}&timezone=${location.timezone}`
       )
       if (!response.ok) throw new Error('Failed to fetch panchang')
       const data = await response.json()
@@ -90,26 +93,8 @@ export default function PanchangPage() {
       fetchPanchang()
     }
   }, [fetchPanchang, selectedDate])
-
-  const handleLocationChange = async (locationName: string) => {
-    if (!locationName) return
-    
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`
-      )
-      const data = await response.json()
-      if (data && data[0]) {
-        setLocation({
-          lat: parseFloat(data[0].lat),
-          lng: parseFloat(data[0].lon),
-          name: locationName
-        })
-      }
-    } catch (err) {
-      console.error('Location search failed:', err)
-    }
-  }
+  const locationNeedsConfirm =
+    locationInput.trim().length > 0 && locationInput !== location.name
 
   if (loading) {
     return (
@@ -162,19 +147,27 @@ export default function PanchangPage() {
                 className="w-auto" 
               />
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Enter location" 
-                defaultValue={location.name}
-                onBlur={(e) => handleLocationChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleLocationChange((e.target as HTMLInputElement).value)
-                  }
+            <div className="flex flex-col items-start gap-1">
+              <PlacesAutocomplete
+                value={locationInput}
+                onChange={(value) => setLocationInput(value)}
+                onPlaceSelect={(place) => {
+                  setLocation({
+                    lat: place.latitude,
+                    lng: place.longitude,
+                    name: place.formattedAddress,
+                    timezone: place.timezone,
+                  })
+                  setLocationInput(place.formattedAddress)
                 }}
-                className="w-48" 
+                placeholder="Enter location"
+                className="w-48"
               />
+              {locationNeedsConfirm && (
+                <p className="text-xs text-muted-foreground">
+                  Select a suggestion to use precise coordinates.
+                </p>
+              )}
             </div>
           </div>
 

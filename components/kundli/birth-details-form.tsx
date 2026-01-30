@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { motion } from "framer-motion"
@@ -41,6 +41,48 @@ export function BirthDetailsForm() {
     },
   })
 
+  useEffect(() => {
+    const draftRaw = localStorage.getItem("birthDetailsDraft")
+    if (!draftRaw) return
+
+    try {
+      const draft = JSON.parse(draftRaw)
+
+      if (draft.dateOfBirth) {
+        setValue("dateOfBirth", draft.dateOfBirth)
+      }
+      if (draft.timeOfBirth) {
+        setTimeValue(draft.timeOfBirth)
+        setValue("timeOfBirth", draft.timeOfBirth)
+      }
+      if (draft.placeOfBirth) {
+        setPlaceInput(draft.placeOfBirth)
+        setValue("placeOfBirth", draft.placeOfBirth)
+      }
+
+      const lat = typeof draft.latitude === "number" ? draft.latitude : parseFloat(draft.latitude)
+      const lon = typeof draft.longitude === "number" ? draft.longitude : parseFloat(draft.longitude)
+      const tz = typeof draft.timezone === "number" ? draft.timezone : parseFloat(draft.timezone)
+
+      if (Number.isFinite(lat) && Number.isFinite(lon) && Number.isFinite(tz)) {
+        const placeName = draft.placeOfBirth || ""
+        const prefillLocation: LocationData = {
+          name: placeName,
+          formattedAddress: placeName,
+          latitude: lat,
+          longitude: lon,
+          timezone: tz,
+        }
+        setLocationData(prefillLocation)
+        setValue("latitude", lat)
+        setValue("longitude", lon)
+        setValue("timezone", tz.toString())
+      }
+    } catch {
+      // Ignore malformed draft data
+    }
+  }, [setValue])
+
   const handlePlaceSelect = (place: LocationData) => {
     setLocationData(place)
     setPlaceInput(place.formattedAddress)
@@ -69,6 +111,7 @@ export function BirthDetailsForm() {
     
     // Save to localStorage
     localStorage.setItem("birthDetails", JSON.stringify(fullData))
+    localStorage.removeItem("birthDetailsDraft")
     
     // Navigate to processing page
     router.push("/kundli/processing")

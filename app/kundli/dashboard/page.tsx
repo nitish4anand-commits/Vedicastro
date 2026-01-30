@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Download, FileText, Share2, Sparkles, Loader2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -70,6 +70,18 @@ const sampleKundliData = {
   ],
 }
 
+const planetSymbolMap: Record<string, string> = {
+  Sun: "â˜‰",
+  Moon: "â˜½",
+  Mars: "â™‚",
+  Mercury: "â˜¿",
+  Jupiter: "â™ƒ",
+  Venus: "â™€",
+  Saturn: "â™„",
+  Rahu: "â˜Š",
+  Ketu: "â˜‹",
+}
+
 export default function KundliDashboard() {
   const [advancedAnalysis, setAdvancedAnalysis] = useState<any>(null)
   const [kundliData, setKundliData] = useState<any>(null)
@@ -77,6 +89,7 @@ export default function KundliDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [birthDetails, setBirthDetails] = useState<any>(null)
   const router = useRouter()
+  const chartExportRef = useRef<HTMLDivElement>(null)
 
   // Load birth details from localStorage and fetch advanced analysis
   useEffect(() => {
@@ -156,6 +169,66 @@ export default function KundliDashboard() {
     }
   }
 
+  const inlineSvgStyles = (source: SVGElement, target: SVGElement) => {
+    const sourceElements = Array.from(source.querySelectorAll("*"))
+    const targetElements = Array.from(target.querySelectorAll("*"))
+    targetElements.forEach((el, index) => {
+      const sourceEl = sourceElements[index] as Element | undefined
+      if (!sourceEl) return
+      const computed = window.getComputedStyle(sourceEl)
+      const styleText = [
+        `fill:${computed.fill}`,
+        `stroke:${computed.stroke}`,
+        `stroke-width:${computed.strokeWidth}`,
+        `font-family:${computed.fontFamily}`,
+        `font-size:${computed.fontSize}`,
+        `font-weight:${computed.fontWeight}`,
+        `opacity:${computed.opacity}`,
+      ].join(";")
+      if (styleText) {
+        ;(el as HTMLElement).setAttribute("style", styleText)
+      }
+    })
+  }
+
+  const handleDownloadChartImage = () => {
+    if (!kundliData) {
+      alert("Chart data is not ready yet.")
+      return
+    }
+
+    if (!chartExportRef.current) {
+      alert("Chart is not ready yet.")
+      return
+    }
+
+    const svg = chartExportRef.current.querySelector("svg")
+    if (!svg) {
+      alert("Chart is not ready yet.")
+      return
+    }
+
+    const clone = svg.cloneNode(true) as SVGElement
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg")
+    clone.setAttribute("width", "800")
+    clone.setAttribute("height", "800")
+    inlineSvgStyles(svg, clone)
+
+    const svgData = new XMLSerializer().serializeToString(clone)
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    const nameBase = birthDetails?.name
+      ? `${birthDetails.name.replace(/\\s+/g, "_")}_birth_chart`
+      : "kundli_birth_chart"
+    link.href = url
+    link.download = `${nameBase}.svg`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   // Format date from YYYY-MM-DD to DD/MM/YYYY
   const formatDate = (dateString: string) => {
     if (!dateString) return ""
@@ -203,6 +276,14 @@ export default function KundliDashboard() {
     return sanskritMap[sign] || sign
   }
 
+  const chartPlanets =
+    kundliData?.planets?.map((p: any) => ({
+      name: p.name,
+      symbol: planetSymbolMap[p.name] || "o",
+      house: p.house || 1,
+      retrograde: p.isRetrograde,
+    })) || undefined
+
   // Show loading state while checking localStorage
   if (!birthDetails) {
     return (
@@ -216,6 +297,13 @@ export default function KundliDashboard() {
   }
   return (
     <div className="container py-12">
+      <div
+        ref={chartExportRef}
+        className="absolute left-[-9999px] top-[-9999px]"
+        aria-hidden="true"
+      >
+        <NorthIndianChart planets={chartPlanets} className="w-[400px] h-[400px]" />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -446,12 +534,7 @@ export default function KundliDashboard() {
               <CardContent>
                 <div className="flex items-center justify-center">
                   <NorthIndianChart
-                    planets={kundliData?.planets?.map((p: any) => ({
-                      name: p.name,
-                      symbol: ({ Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋" } as Record<string, string>)[p.name] || "●",
-                      house: p.house || 1,
-                      retrograde: p.isRetrograde
-                    }))}
+                    planets={chartPlanets}
                   />
                 </div>
               </CardContent>
@@ -650,7 +733,11 @@ export default function KundliDashboard() {
                       <p className="text-sm text-muted-foreground mb-4">
                         High-resolution birth chart image for personal use
                       </p>
-                      <Button variant="outline" className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleDownloadChartImage}
+                      >
                         <Download className="h-4 w-4 mr-2" />
                         Download Image
                       </Button>

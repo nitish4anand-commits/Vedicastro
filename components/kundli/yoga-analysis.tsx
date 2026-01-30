@@ -128,7 +128,7 @@ export function YogaAnalysis({ yogas }: YogaAnalysisProps) {
                 <p className="text-sm text-muted-foreground mb-2">{yoga.description}</p>
                 {yoga.planets && yoga.planets.length > 0 && (
                   <div className="flex gap-2 flex-wrap">
-                    {yoga.planets.map((planet) => (
+                    {yoga.planets.map((planet: string) => (
                       <span
                         key={planet}
                         className="px-2 py-1 bg-purple-500/10 text-purple-500 text-xs rounded-full"

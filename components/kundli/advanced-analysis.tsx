@@ -25,7 +25,9 @@ interface ShadbalaResult {
   planet: string
   totalBala: number
   percentage: number
+  classicalPercentage?: number
   isStrong: boolean
+  strengthLabel?: 'Very Strong' | 'Strong' | 'Adequate' | 'Weak' | 'Very Weak'
   interpretation: string
   sthanaaBala: number
   digBala: number
@@ -36,10 +38,14 @@ interface YogaResult {
   name: string
   sanskritName: string
   category: string
-  strength: string
+  strength: number
+  strengthLabel?: string
+  isPresent?: boolean
   formingPlanets: string[]
   effects: string
   timing: string
+  activationPeriods?: string[]
+  afflictions?: string[]
   remedies?: string[]
 }
 
@@ -250,14 +256,18 @@ export function AdvancedAnalysisView({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={planet.isStrong ? "default" : "secondary"} className={planet.isStrong ? "bg-green-500" : "bg-yellow-500"}>
-                          {planet.percentage.toFixed(0)}%
+                        <Badge variant={planet.isStrong ? "default" : "secondary"} className={
+                          planet.strengthLabel === 'Very Strong' ? "bg-green-600" :
+                          planet.strengthLabel === 'Strong' ? "bg-green-500" :
+                          planet.strengthLabel === 'Adequate' ? "bg-blue-500" :
+                          planet.strengthLabel === 'Weak' ? "bg-yellow-500" :
+                          "bg-red-500"
+                        }>
+                          {planet.strengthLabel || (planet.isStrong ? 'Strong' : 'Needs Support')}
                         </Badge>
-                        {planet.isStrong ? (
-                          <span className="text-green-500 text-sm">✓ Strong</span>
-                        ) : (
-                          <span className="text-yellow-500 text-sm">⚠ Needs Support</span>
-                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {planet.percentage.toFixed(0)}%
+                        </span>
                       </div>
                     </div>
                     
@@ -320,8 +330,13 @@ export function AdvancedAnalysisView({
                               }>
                                 {yoga.category} Yoga
                               </Badge>
-                              <Badge variant="secondary">
-                                {yoga.strength}
+                              <Badge variant="secondary" className={
+                                yoga.strength >= 80 ? "bg-green-500" :
+                                yoga.strength >= 60 ? "bg-blue-500" :
+                                yoga.strength >= 40 ? "bg-yellow-500" :
+                                "bg-gray-500"
+                              }>
+                                {yoga.strengthLabel || `${yoga.strength}%`}
                               </Badge>
                             </div>
                           </div>

@@ -1,0 +1,62 @@
+# VedicAstro robots.txt
+# Owner: Nitish Anand
+# Updated: 2025-01-28
+
+# Default rules for all bots
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /horoscope
+Allow: /panchang
+Allow: /api/public/*
+Disallow: /api/kundli/
+Disallow: /api/matching/
+Disallow: /api/chat/
+Disallow: /api/user/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/auth/
+
+# ChatGPT Bot
+User-agent: GPTBot
+Allow: /blog
+Allow: /horoscope
+Allow: /panchang
+Allow: /api/public/*
+Disallow: /api/kundli/
+Disallow: /api/user/
+Crawl-delay: 2
+
+# Claude AI Bot
+User-agent: Claude-Web
+Allow: /blog
+Allow: /horoscope
+Allow: /panchang
+Allow: /api/public/*
+Disallow: /api/kundli/
+Disallow: /api/user/
+Crawl-delay: 2
+
+# Anthropic crawlers
+User-agent: anthropic-ai
+Allow: /
+Disallow: /api/kundli/
+Disallow: /api/user/
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /blog
+Allow: /horoscope
+Allow: /api/public/*
+Disallow: /api/user/
+
+# Block aggressive scrapers
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+# Sitemaps
+Sitemap: https://vedicastro.com/sitemap.xml
+Sitemap: https://vedicastro.com/blog-sitemap.xml

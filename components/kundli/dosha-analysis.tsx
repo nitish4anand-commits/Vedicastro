@@ -164,7 +164,7 @@ export function DoshaAnalysis({ doshas }: DoshaAnalysisProps) {
                     <div>
                       <h4 className="font-semibold mb-2">Recommended Remedies:</h4>
                       <ul className="space-y-2">
-                        {dosha.remedies.map((remedy, index) => (
+                        {dosha.remedies.map((remedy: string, index: number) => (
                           <li key={index} className="flex items-start gap-2 text-sm">
                             <span className="text-purple-500 mt-1">•</span>
                             <span>{remedy}</span>

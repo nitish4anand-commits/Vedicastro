@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TimePicker, LocationAutocomplete, type LocationData } from "@/components/forms"
+import ServiceSchema from "@/components/schema/ServiceSchema"
+import { generateMatchingPDF } from "@/lib/pdf/generate-matching-pdf"
 
 // Import all new components
 import {
@@ -174,9 +176,24 @@ export default function MatchingPage() {
   }
 
   const handleDownload = () => {
-    // TODO: Implement PDF download
-    console.log('Download report - feature coming soon')
-    alert('PDF download feature coming soon!')
+    if (!result) {
+      alert('Please calculate compatibility first.')
+      return
+    }
+
+    generateMatchingPDF({
+      maleName: maleDetails.name || undefined,
+      femaleName: femaleDetails.name || undefined,
+      maleDetails: result.maleDetails,
+      femaleDetails: result.femaleDetails,
+      totalScore: result.totalScore,
+      maxScore: result.maxScore,
+      percentage: result.percentage,
+      verdict: result.verdict,
+      kootas: result.kootas,
+      doshas: result.doshas,
+      recommendations: result.recommendations,
+    })
   }
 
   const handleBookConsultation = () => {
@@ -257,6 +274,14 @@ export default function MatchingPage() {
   }
 
   return (
+    <>
+      {/* Schema.org markup for SEO and AI discoverability */}
+      <ServiceSchema
+        serviceName="Kundli Matching (Gun Milan)"
+        description="Check marriage compatibility through Vedic Kundli matching with Ashtakoota (8-point) analysis, Manglik dosha check, and detailed compatibility predictions."
+        serviceType="Marriage Compatibility Analysis"
+      />
+      
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-purple-50/20 to-gray-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-gray-950">
       {/* Header */}
       <header className="border-b border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm sticky top-0 z-40">
@@ -570,5 +595,6 @@ export default function MatchingPage() {
         </AnimatePresence>
       </main>
     </div>
+    </>
   )
 }
